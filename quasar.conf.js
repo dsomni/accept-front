@@ -143,9 +143,9 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `Quasar Accept`,
-        short_name: `Quasar Accept`,
-        description: `A Quasar Framework app`,
+        name: `Accept`,
+        short_name: `Accept`,
+        description: `Accept is a Controlled Contraption for Education & Program Testing`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -153,22 +153,12 @@ module.exports = configure(function (ctx) {
         icons: [
           {
             src: 'icons/icon-128x128.png',
-            sizes: '128x128',
-            type: 'image/png'
-          },
-          {
-            src: 'icons/icon-192x192.png',
-            sizes: '192x192',
+            sizes: '16x16',
             type: 'image/png'
           },
           {
             src: 'icons/icon-256x256.png',
             sizes: '256x256',
-            type: 'image/png'
-          },
-          {
-            src: 'icons/icon-384x384.png',
-            sizes: '384x384',
             type: 'image/png'
           },
           {

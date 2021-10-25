@@ -4,17 +4,26 @@
 q-layout(view='hHh lpR fFf')
   q-header.bg-grey-1.text-grey-10(reveal elevated)
     q-toolbar.q-pa-md.vertical-middle
-      q-toolbar-title.text-h4
-        q-avatar(size='xl' square)
+      q-toolbar-title.text-h5.text-weight-medium
+        q-avatar(size='xl' square).q-ml-xs
           img(src='~assets/logo.svg')
         span.q-ml-sm Accept
 
   q-page-container.bg-grey-1
     router-view
-  q-footer.bg-grey-8.text-white
-    q-toolbar
-      q-toolbar-title
-        div Title
+
+  q-footer.bg-blue-grey-9.text-white
+
+    div.row.justify-center.no-wrap.items-center.q-gutter-x-lg.q-mt-xl
+      a(href="https://github.com/dsomni")
+        q-icon(size="sm")
+          img(src="~assets/github.svg")
+      a(href="https://github.com/RetroMeras")
+        q-icon(size="sm")
+          img(src="~assets/github.svg")
+    div.row.justify-center.text-no-wrap.items-center.q-mt-lg.q-mb-xl.text-justify.text-body1
+      .copyright-span
+      | Copyright © 2020-{{ new Date().getFullYear() }} Blue Crane
 </template>
 
 <script>
