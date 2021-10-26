@@ -6,3 +6,19 @@
   font-family: LatoBold;
   src: url(./fonts/Lato-Bold.ttf);
 }
+
+@font-face {
+  font-family: LatoBoldCyrillic;
+  src: url(./fonts/Lato-Bold-Cyrillic.ttf);
+}
+
+a.common-ref{
+  color: black;
+  text-decoration: none;
+  border-bottom: 0.2rem solid #fcfcfc00;
+}
+a.common-ref:hover{
+  text-decoration: none;
+  border-bottom: 0.2rem solid $primary;
+  border-radius: 5%;
+}

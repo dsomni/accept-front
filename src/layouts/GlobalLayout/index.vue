@@ -8,6 +8,9 @@ q-layout(view='hHh lpR fFf')
         q-avatar(size='xl' square).q-ml-xs
           img(src='~assets/logo.svg')
         span.q-ml-sm Accept
+      div.text-subtitle1.row.q-gutter-x-xl.q-mx-xl.text-weight-medium.revs-bar
+        a.common-ref(href="dsfdsfd.com") Ещё что-то
+        a.common-ref(href="sdfsd.com") О проекте
 
   q-page-container.bg-grey-1
     router-view
