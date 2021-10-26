@@ -81,12 +81,12 @@ const menuList = [
   },
   {
     label: "Разное",
-    reference: "/stuff",
+    reference: "/#/stuff",
     separator: true,
   },
   {
     label: "О проекте",
-    reference: "/about",
+    reference: "/#/about",
     separator: true,
   },
 ];
