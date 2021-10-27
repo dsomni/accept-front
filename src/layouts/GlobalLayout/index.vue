@@ -17,20 +17,8 @@ q-layout(view="hHh lpR lFf")
         q-avatar.q-ml-xs(size="xl", square)
           img(src="~assets/logo.svg")
         span.q-ml-sm Accept
-      .text-subtitle1.text-weight-medium.row.q-gutter-x-md.q-mx-xl.revs-bar(
-        v-if="$q.screen.width >= getLimitWidth"
-      )
-        template(v-for="(menuItem, index) in menuList", :key="index")
-          q-item.nav-ref(
-            clickable,
-            :active="true",
-            v-ripple,
-            active-class="text-primary",
-            tag="a",
-            :href="menuItem.reference"
-          )
-            q-item-section.no-wrap.text-grey-10 {{ menuItem.label }}
-          q-separator(:key="'sep' + index", v-if="menuItem.separator")
+
+      HeaderMenu(:menuList="menuList", v-if="$q.screen.width >= getLimitWidth")
 
   q-drawer.bg-grey-2.text-subtitle1(
     v-model="leftDrawerOpen",
@@ -70,21 +58,48 @@ q-layout(view="hHh lpR lFf")
       .copyright-span
       | Copyright © 2020-{{ new Date().getFullYear() }} Blue Crane
 </template>
+
+
 <script>
 import { defineComponent, ref } from "vue";
+import HeaderMenu from "components/HeaderMenu/index";
+
+const projectList = [
+  {
+    type: "reference",
+    label: "Образование",
+    reference: "/#/edu",
+    separator: true,
+  },
+  {
+    type: "reference",
+    label: "Турниры",
+    reference: "/#/tournament",
+    separator: true,
+  },
+  {
+    type: "reference",
+    label: "Курсы",
+    reference: "/#/courses",
+    separator: true,
+  },
+];
 
 const menuList = [
   {
+    type: "reference",
     label: "Главная",
     reference: "/",
     separator: true,
   },
   {
-    label: "Разное",
-    reference: "/#/stuff",
+    type: "dropDown",
+    label: "Проекты",
+    list: projectList,
     separator: true,
   },
   {
+    type: "reference",
     label: "О проекте",
     reference: "/#/about",
     separator: true,
@@ -93,10 +108,10 @@ const menuList = [
 
 export default defineComponent({
   name: "GlobalLayout",
-  computed:{
-    getLimitWidth(){
+  computed: {
+    getLimitWidth() {
       return 700;
-    }
+    },
   },
   setup() {
     const leftDrawerOpen = ref(false);
@@ -108,6 +123,9 @@ export default defineComponent({
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
     };
+  },
+  components: {
+    HeaderMenu,
   },
 });
 </script>
