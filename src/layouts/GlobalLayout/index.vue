@@ -20,7 +20,7 @@ q-layout(view="hHh lpR lFf")
 
       HeaderMenu(:menuList="menuList", v-if="$q.screen.width >= getLimitWidth")
 
-  q-drawer.bg-grey-2.text-subtitle1(
+  q-drawer.bg-grey-1.text-subtitle1(
     v-model="leftDrawerOpen",
     v-if="$q.screen.width < getLimitWidth",
     side="left",
@@ -30,18 +30,7 @@ q-layout(view="hHh lpR lFf")
     :breakpoint="200"
   )
     q-scroll-area.fit
-      q-list
-        template(v-for="(menuItem, index) in menuList", :key="index")
-          q-item(
-            clickable,
-            :active="true",
-            v-ripple,
-            active-class="text-primary",
-            tag="a",
-            :href="menuItem.reference"
-          )
-            q-item-section.no-wrap.text-grey-10 {{ menuItem.label }}
-          q-separator(:key="'sep' + index", v-if="menuItem.separator")
+      DrawerMenu(:menuList="menuList")
 
   q-page-container.bg-grey-1
     router-view
@@ -63,6 +52,7 @@ q-layout(view="hHh lpR lFf")
 <script>
 import { defineComponent, ref } from "vue";
 import HeaderMenu from "components/HeaderMenu/index";
+import DrawerMenu from "components/LeftDrawerMenu/index";
 
 const projectList = [
   {
@@ -126,6 +116,7 @@ export default defineComponent({
   },
   components: {
     HeaderMenu,
+    DrawerMenu
   },
 });
 </script>

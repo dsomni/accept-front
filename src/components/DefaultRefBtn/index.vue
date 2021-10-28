@@ -2,12 +2,13 @@
 
 <template lang="pug">
 q-item.text-weight-medium.header-ref-btn(
+  :class="{ 'header-ref-btn-undrln': underline }",
   clickable,
   :active="true",
   v-ripple,
   active-class="text-primary",
   tag="a",
-  :href="reference"
+  :href="reference",
 )
   q-item-section.no-wrap.text-grey-10 {{ label }}
 </template>
@@ -16,10 +17,11 @@ q-item.text-weight-medium.header-ref-btn(
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: "HeaderMenuButton",
+  name: "DefaultRefBtn",
   props:{
     reference: String,
     label: String,
+    underline: Boolean,
   }
 })
 </script>
