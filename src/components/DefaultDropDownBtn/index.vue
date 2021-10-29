@@ -29,14 +29,14 @@ import { defineComponent } from "vue";
 import RefButton from "components/DefaultRefBtn/index";
 //    dropdown-icon="img:icons/arrow_drop_down.svg"
 export default defineComponent({
-  name: "DefaultRefBtn",
+  name: "DefaultDropDownBtn",
   props: {
     label: String,
     list: Array,
+    underline: Boolean,
   },
   components: {
     RefButton,
-    underline: Boolean,
   },
 });
 </script>

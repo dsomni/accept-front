@@ -6,13 +6,15 @@ q-list.column
     RefButton(
       v-if="menuItem.type == 'reference'",
       :reference="menuItem.reference",
-      :label="menuItem.label"
+      :label="menuItem.label",
+      :underline="false"
     )
 
     ExpansionItemDrawer.text-weight-regular(
       v-if="menuItem.type == 'dropDown'",
       :list="menuItem.list",
-      :label="menuItem.label"
+      :label="menuItem.label",
+      :underline="false"
     )
 
     q-separator(:key="'sep' + index", v-if="menuItem.separator")

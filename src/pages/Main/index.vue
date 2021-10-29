@@ -1,19 +1,20 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-page(class="flex flex-center")
-  img(
-    alt="Quasar logo"
-    src="~assets/logo.svg"
-    style="width: 200px; height: 200px"
-  )
+q-page.flex.flex-start
+    Parallax
+    Parallax
 </template>
 
 
 <script>
 import { defineComponent } from 'vue';
+import Parallax from 'components/DefaultParallax/index.vue';
 
 export default defineComponent({
-  name: 'PageIndex'
+  name: 'Main',
+  components: {
+    Parallax
+  }
 })
 </script>
