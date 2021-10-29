@@ -1,9 +1,9 @@
 {
   "name": "accept-front",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasar Accept",
-  "author": "Dmitry <pro100pro10010@gmail.com>",
+  "description": "Accept is a Controlled Contraption for Education & Program Testing",
+  "productName": "Accept",
+  "author": "dsomni <pro100pro10010@gmail.com>",
   "private": true,
   "scripts": {
     "test": "echo \"No test specified\" && exit 0"
