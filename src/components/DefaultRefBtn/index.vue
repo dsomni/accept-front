@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-item.text-weight-medium.header-ref-btn(
+q-item.text-weight-medium.bg-grey-1.header-ref-btn(
   :class="{ 'header-ref-btn-undrln': underline }",
   clickable,
   :active="true",

@@ -4,8 +4,8 @@ const routes = [
     path: '/',
     component: () => import('layouts/GlobalLayout/index.vue'),
     children: [
-      { path: '', component: () => import('src/pages/index/index.vue') },
-      { path: 'about', component: () => import('src/pages/index/index.vue') }
+      { path: '', component: () => import('src/pages/Main/index.vue') },
+      { path: 'about', component: () => import('src/pages/Main/index.vue') }
     ]
   },
 
@@ -13,7 +13,7 @@ const routes = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/Error404.vue')
+    component: () => import('src/pages/Error404/index.vue')
   }
 ]
 
