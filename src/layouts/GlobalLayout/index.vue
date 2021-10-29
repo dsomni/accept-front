@@ -55,7 +55,7 @@ const projectList = [
   {
     type: "reference",
     label: "Турниры",
-    reference: "/#/tournament",
+    reference: "/#/tournaments",
     separator: true,
   },
   {

@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-.bg-blue-grey-9.text-white(style="height: 15vh; min-height:200px;").q-pa-md
+.bg-blue-grey-9.text-white(style="height: 15vh; min-height:200px;").q-pa-md.q-mt-md
   .row.justify-center.no-wrap.items-center.q-gutter-x-lg.q-mt-xl
     a(href="https://github.com/dsomni")
       q-icon(size="sm")
