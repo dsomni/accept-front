@@ -6,13 +6,13 @@ q-parallax.q-mb-xl(style="height: 60vh", :speed="1")
     img(src="~assets/code.jpg")
 
   template(v-slot:content="scope")
-    .absolute.column.items-center(:style="{opacity:0.9}")
+    .absolute.column.items-center.text-white(:style="{opacity:0.9}")
       img(
         src="~assets/simple_logo.svg",
         style="width: 150px; height: 150px"
       )
-      .text-h1.text-white.text-center.text-weight-medium {{productName}}
-      .text-h4.text-grey-3.text-center.text-weight-medium v{{ version }}
+      .text-h1.text-center.text-weight-medium {{productName}}
+      .text-h4.text-center.text-weight-medium v{{ version }}
 </template>
 
 <script>
