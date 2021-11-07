@@ -8,7 +8,7 @@
     :class="{'reduce-width-card': ($q.screen.width < getLimitWidth)}"
   )
     q-parallax(
-      src='~assets/code1.jpg',
+      :src="getImgUrl"
       :class="{'reduce-height': ($q.screen.width < getLimitWidth)}",
       style="height: 400px"
     )
@@ -31,15 +31,21 @@
 import { defineComponent } from "vue";
 import ArrowButton from "components/ArrowRefBtn/index";
 
+const images = require.context("../../assets/", false, /\.jpg$/);
+
 export default defineComponent({
   name: "DefaultCard",
   props: {
     item: Object,
     isRight: Boolean,
+    imgIdx: Number
   },
   computed: {
     getLimitWidth() {
       return 600;
+    },
+    getImgUrl() {
+      return images("./" + 'code' + this.imgIdx.toString() + ".jpg");
     },
   },
   components: {
