@@ -1,3 +1,5 @@
+import LogIn from 'src/pages/LogIn/index.vue';
+
 
 const routes = [
   {
@@ -5,10 +7,14 @@ const routes = [
     component: () => import('layouts/GlobalLayout/index.vue'),
     children: [
       { path: '', component: () => import('src/pages/Main/index.vue') },
-      // { path: 'about', component: () => import('src/pages/Main/index.vue') }
+      { path: 'about', component: () => import('src/pages/Main/index.vue') }
     ]
   },
 
+  {
+    path: '/log-in',
+    component: LogIn
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

@@ -9,6 +9,10 @@ q-page.flex.flex-start
 
 <script>
 import { defineComponent } from "vue";
+import { useQuasar } from "quasar";
+import { useStore } from "vuex";
+import { useRouter, useRoute } from "vue-router";
+
 import Parallax from "components/DefaultParallax/index.vue";
 import CardList from "components/DefaultCardList/index.vue";
 
@@ -46,10 +50,18 @@ export default defineComponent({
     Parallax,
     CardList,
   },
-  data(){
-    return{
-      cards
+  beforeCreate() {
+    const $store = useStore();
+    const $router = useRouter();
+    const $route = useRoute();
+    if (!$store.state.Global.isAuthenticated) {
+      $router.push({ path: "log-in", query: { to: "/about" } });
     }
-  }
+  },
+  data() {
+    return {
+      cards,
+    };
+  },
 });
 </script>

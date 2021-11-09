@@ -3,6 +3,7 @@
 <template lang="pug">
 .row.q-mx-xl
   q-list.row.q-gutter-x-sm
+    q-btn(label="Exit", @click="exit(q)")
     template(v-for="(menuItem, index) in menuList", :key="index")
       RefButton(
         v-if="menuItem.type == 'reference'",
@@ -26,15 +27,34 @@ import { defineComponent } from "vue";
 import RefButton from "components/DefaultRefBtn/index";
 import DropDown from "components/DefaultDropDownBtn/index";
 
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+
+
 export default defineComponent({
   name: "HeaderMenu",
-  setup() {},
+  setup () {
+    const store = useStore();
+    const q = useQuasar();
+
+    return {
+      store,
+      q
+    }
+  },
   props: {
     menuList: Array,
   },
   components: {
     RefButton,
     DropDown,
+  },
+  methods: {
+    exit(q) {
+      q.localStorage.remove('token');
+      // store.commit('Global/removeToken')
+      // console.log(store.state.Global.isAuthenticated)
+    },
   },
 });
 </script>
