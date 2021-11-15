@@ -1,4 +1,5 @@
 import LogIn from 'src/pages/LogIn/index.vue';
+import TestBack from 'src/pages/TestBack/index.vue';
 
 
 const routes = [
@@ -14,6 +15,11 @@ const routes = [
   {
     path: '/log-in',
     component: LogIn
+  },
+
+  {
+    path: '/test-back',
+    component: TestBack
   },
   // Always leave this as last one,
   // but you can also remove it
