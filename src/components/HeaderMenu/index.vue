@@ -3,7 +3,7 @@
 <template lang="pug">
 .row.q-mx-xl
   q-list.row.q-gutter-x-sm
-    q-btn(label="Exit", @click="exit(q)")
+    q-btn(label="Exit", @click="exit()")
     template(v-for="(menuItem, index) in menuList", :key="index")
       RefButton(
         v-if="menuItem.type == 'reference'",
@@ -50,10 +50,8 @@ export default defineComponent({
     DropDown,
   },
   methods: {
-    exit(q) {
-      q.localStorage.remove('token');
-      // store.commit('Global/removeToken')
-      // console.log(store.state.Global.isAuthenticated)
+    exit() {
+      console.log(this.store.state.users.user)
     },
   },
 });

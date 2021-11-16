@@ -13,13 +13,14 @@ const routes = [
   },
 
   {
-    path: '/log-in',
+    path: '/login',
     component: LogIn
   },
 
   {
     path: '/test-back',
-    component: TestBack
+    component: TestBack,
+    meta:{requiresAuth: true},
   },
   // Always leave this as last one,
   // but you can also remove it
@@ -28,5 +29,6 @@ const routes = [
     component: () => import('src/pages/Error404/index.vue')
   }
 ]
+
 
 export default routes

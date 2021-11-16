@@ -10,15 +10,8 @@ export default defineComponent({
   name: "App",
   setup() {},
   beforeCreate() {
-    const $store = useStore();
-    $store.commit("Global/initializeStore");
-
-    const token = $store.state.Global.token;
-    if (token) {
-      api.defaults.headers.common["Authorization"] = "Token " + token;
-    } else {
-      api.defaults.headers.common["Authorization"] = "";
-    }
+    // const $store = useStore();
+    // $store.commit("Global/initializeStore");
   },
 });
 </script>

@@ -1,6 +1,6 @@
 import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
-import Global from './global-store'
+import users from './users'
 
 // import example from './module-example'
 
@@ -16,7 +16,7 @@ import Global from './global-store'
 export default store(function (/* { ssrContext } */) {
   const Store = createStore({
     modules: {
-      Global
+      users
     },
 
     // enable strict mode (adds overhead!)
