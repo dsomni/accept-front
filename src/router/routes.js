@@ -22,8 +22,7 @@ const routes = [
     component: TestBack,
     meta:{requiresAuth: true},
   },
-  // Always leave this as last one,
-  // but you can also remove it
+
   {
     path: '/:catchAll(.*)*',
     component: () => import('src/pages/Error404/index.vue')

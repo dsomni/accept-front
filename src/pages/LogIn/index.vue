@@ -21,7 +21,7 @@
       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
     )
 
-    div.column.q-gutter-md
+    .column.q-gutter-md
       q-btn(label="Log in", type="submit", color="primary")
       q-btn(label="WhoAmI", color="primary", @click="printInfo")
       q-btn(label="Log out", , @click="logout")
@@ -29,7 +29,6 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import { api } from "boot/axios";
 
 import { useQuasar } from "quasar";
 import { useStore, mapActions } from "vuex";
@@ -49,6 +48,7 @@ export default defineComponent({
     return {
       store,
       router,
+      route,
       login,
       password,
 
@@ -57,131 +57,31 @@ export default defineComponent({
           login: login.value.toString(),
           password: password.value.toString(),
         };
-        // result = await store.dispatch('users/logIn', User);
-        // console.log(result)
-        // router.push("/login");
-
-        await api
-          .post("api/login", User)
-          .then((response) => {
-            console.log(response);
-            const data = response.data;
-            // const token = response.data.auth_token;
-
-            // $store.commit("Global/setToken", token);
-
-            // api.defaults.headers.common["Authorization"] = "Token " + token;
-            // $q.localStorage.set("token", token);
-
-            // const toPath = route.query.to || "/";
-
-            // $router.push({ path: toPath });
-
-            q.notify({
-              color: "green-4",
-              textColor: "white",
-              message: data.detail,
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-            // if (error.response) {
-            //   if (
-            //     typeof error.response.data === "object" &&
-            //     error.response.data !== null
-            //   ) {
-            //     for (const property in error.response.data) {
-            //       $q.notify({
-            //         type: "negative",
-            //         message: `${property}: ${error.response.data[property]}`,
-            //         timeout: 8000,
-            //       });
-            //     }
-            //   } else {
-            //     q.notify({
-            //       type: "negative",
-            //       message: `${error.response.status}: ${error.response.statusText}`,
-            //       timeout: 8000,
-            //     });
-            //   }
-            // } else {
-            //   q.notify({
-            //     type: "negative",
-            //     message: "Something went wrong. Please try again",
-            //     timeout: 8000,
-            //   });
-
-            //   console.log(JSON.stringify(error));
-            // }
+        const response = await store.dispatch("users/logIn", User);
+        if (response.status == 200) {
+          const toPath = route.query.nextUrl || "/";
+          router.push({ path: toPath });
+          q.notify({
+            color: "green-4",
+            textColor: "white",
+            message: response.data?.detail || "Successfully",
           });
-
-        // api.defaults.headers.common["Authorization"] = "";
-
-        // q.localStorage.remove("token");
-
-        // const formData = {
-        //   username: login.value,
-        //   password: password.value,
-        // };
-
-        // await api
-        //   .post("/api/v1/token/login/", formData)
-        //   .then((response) => {
-        //     const token = response.data.auth_token;
-
-        //     $store.commit("Global/setToken", token);
-
-        //     api.defaults.headers.common["Authorization"] = "Token " + token;
-        //     $q.localStorage.set("token", token);
-
-        //     const toPath = route.query.to || "/";
-
-        //     $router.push({ path: toPath });
-
-        //     $q.notify({
-        //       color: "green-4",
-        //       textColor: "white",
-        //       icon: "cloud_done",
-        //       message: "Successfully",
-        //     });
-        //   })
-        //   .catch((error) => {
-        //     if (error.response) {
-        //       if (
-        //         typeof error.response.data === "object" &&
-        //         error.response.data !== null
-        //       ) {
-        //         for (const property in error.response.data) {
-        //           $q.notify({
-        //             type: "negative",
-        //             message: `${property}: ${error.response.data[property]}`,
-        //             timeout: 8000,
-        //           });
-        //         }
-        //       } else {
-        //         q.notify({
-        //           type: "negative",
-        //           message: `${error.response.status}: ${error.response.statusText}`,
-        //           timeout: 8000,
-        //         });
-        //       }
-        //     } else {
-        //       q.notify({
-        //         type: "negative",
-        //         message: "Something went wrong. Please try again",
-        //         timeout: 8000,
-        //       });
-
-        //       console.log(JSON.stringify(error));
-        //     }
-        //   });
+        } else {
+          q.notify({
+            type: "negative",
+            message:
+              response.data?.detail ||
+              `${response.status}: ${response.statusText}`,
+            timeout: 8000,
+          });
+        }
       },
       onReset() {},
     };
   },
   computed: {
     isLoggedIn: function () {
-      return this.store.getters.isAuthenticated;
+      return this.store.getters["users/isAuthenticated"];
     },
   },
   mounted() {
@@ -189,18 +89,13 @@ export default defineComponent({
   },
   methods: {
     async logout() {
-      await this.store.dispatch("users/logOut");
-      this.router.push("/login");
+      let response = await this.store.dispatch("users/logOut");
+      const toPath = this.route.query.nextUrl || "/login";
+      this.router.push({ path: toPath });
     },
     async printInfo() {
-      await api
-        .get("api/whoami")
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error?.response);
-        });
+      let response = await this.store.dispatch("users/viewMe");
+      // console.log(this.store.getters["users/stateUser"]);
     },
   },
 });

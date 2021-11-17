@@ -19,13 +19,24 @@ export default route(function ({store}) {
   })
 
 
-  Router.beforeEach((to, from, next) => {
+  Router.beforeEach(async (to, from, next) => {
+    const response = await store.dispatch('users/viewMe');
+    const isAuthenticated = store.getters['users/isAuthenticated'];
+    if (isAuthenticated){
+      await store.dispatch('users/refresh');
+    }
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (store.getters.isAuthenticated) {
+      if (store.getters['users/isAuthenticated']) {
         next();
         return;
       }
-      next('/login');
+      console.log(to)
+      next({
+        path: '/login',
+        query: {
+           nextUrl: to.fullPath,
+        }
+    });
     } else {
       next();
     }

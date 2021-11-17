@@ -2,8 +2,6 @@ import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
 import users from './users'
 
-// import example from './module-example'
-
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;

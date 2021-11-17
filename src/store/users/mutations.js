@@ -1,8 +1,5 @@
-import { LocalStorage, SessionStorage } from 'quasar'
-
-export function setUser(state, login) {
-
-  state.user = login;
+export function setUser(state, user) {
+  state.user = user;
 }
 
 export function logout(state, user) {

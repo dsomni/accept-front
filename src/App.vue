@@ -13,5 +13,8 @@ export default defineComponent({
     // const $store = useStore();
     // $store.commit("Global/initializeStore");
   },
+  mounted() {
+    document.title = "Accept";
+  },
 });
 </script>
