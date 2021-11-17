@@ -3,9 +3,10 @@
 <template lang="pug">
 q-layout(view="hHh lpR lFf")
   q-header.bg-grey-1.text-grey-10(reveal, elevated, bordered)
+    q-resize-observer(@resize="onResizeHeader")
     q-toolbar.q-pa-md.vertical-middle
       q-btn(
-        v-if="$q.screen.width < getLimitWidth",
+        v-if="shouldShrinkHeader",
         dense,
         flat,
         round,
@@ -18,11 +19,11 @@ q-layout(view="hHh lpR lFf")
           img(src="~assets/logo.svg")
         span.q-ml-sm Accept
 
-      HeaderMenu(:menuList="menuList", v-if="$q.screen.width >= getLimitWidth")
+      HeaderMenu(:menuList="menuList", v-if="!shouldShrinkHeader")
 
   q-drawer.bg-grey-1.text-subtitle1(
     v-model="leftDrawerOpen",
-    v-if="$q.screen.width < getLimitWidth",
+    v-if="shouldShrinkHeader",
     side="left",
     bordered,
     overlay,
@@ -41,6 +42,7 @@ q-layout(view="hHh lpR lFf")
 
 <script>
 import { defineComponent, ref } from "vue";
+import { useQuasar } from "quasar";
 import HeaderMenu from "components/HeaderMenu/index";
 import DrawerMenu from "components/LeftDrawerMenu/index";
 import Footer from "components/Footer/index";
@@ -87,17 +89,21 @@ const menuList = [
   },
 ];
 
+const limitWidthHeader = 695;
+
 export default defineComponent({
-  name: "GlobalLayout",
-  computed: {
-    getLimitWidth() {
-      return 700;
-    },
-  },
+  name: "MainPageLayout",
   setup() {
     const leftDrawerOpen = ref(false);
+    const shouldShrinkHeader = ref(false);
+    const q = useQuasar();
+    if (q.screen.width < limitWidthHeader) {
+      shouldShrinkHeader.value = true;
+    }
 
     return {
+      q,
+      shouldShrinkHeader,
       menuList,
       leftDrawerOpen,
       toggleLeftDrawer() {
@@ -105,10 +111,24 @@ export default defineComponent({
       },
     };
   },
+  computed: {
+    getLimitWidth() {
+      return 700;
+    },
+  },
+  methods: {
+    onResizeHeader(size) {
+      if (size.width < limitWidthHeader) {
+        this.shouldShrinkHeader = true;
+      } else {
+        this.shouldShrinkHeader = false;
+      }
+    },
+  },
   components: {
     HeaderMenu,
     DrawerMenu,
-    Footer
+    Footer,
   },
 });
 </script>

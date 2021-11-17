@@ -1,20 +1,24 @@
 import LogIn from 'src/pages/LogIn/index.vue';
+import LogInPageLayout from 'layouts/LogInPageLayout/index.vue';
 import TestBack from 'src/pages/TestBack/index.vue';
 
 
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/GlobalLayout/index.vue'),
+    component: () => import('layouts/MainPageLayout/index.vue'),
     children: [
       { path: '', component: () => import('src/pages/Main/index.vue') },
-      { path: 'about', component: () => import('src/pages/Main/index.vue') }
+      { path: 'about', component: () => import('src/pages/Main/index.vue') },
     ]
   },
 
   {
     path: '/login',
-    component: LogIn
+    component: LogInPageLayout,
+    children: [
+      { path: '', component: LogIn},
+    ]
   },
 
   {

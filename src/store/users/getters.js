@@ -3,6 +3,6 @@ export function isAuthenticated (state) {
 }
 
 export function stateUser (state) {
-  console.log(state)
+  // console.log(state)
   return state.user;
 }

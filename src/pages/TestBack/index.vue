@@ -25,12 +25,12 @@ return{
           await api
       .get("/api/user/admin")
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         this.taskTitle = response.data.name
       })
       .catch((error) => {
-        console.log("Error");
-        console.log(error.response);
+        // console.log("Error");
+        // console.log(error.response);
       });
     }
   },

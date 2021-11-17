@@ -52,5 +52,8 @@ export default defineComponent({
       cards,
     };
   },
+  mounted() {
+    document.title = "Accept";
+  },
 });
 </script>

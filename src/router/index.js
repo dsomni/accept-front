@@ -20,9 +20,9 @@ export default route(function ({store}) {
 
 
   Router.beforeEach(async (to, from, next) => {
-    const response = await store.dispatch('users/viewMe');
     const isAuthenticated = store.getters['users/isAuthenticated'];
     if (isAuthenticated){
+      const response = await store.dispatch('users/viewMe');
       await store.dispatch('users/refresh');
     }
     if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -30,7 +30,7 @@ export default route(function ({store}) {
         next();
         return;
       }
-      console.log(to)
+      // console.log(to)
       next({
         path: '/login',
         query: {

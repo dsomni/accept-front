@@ -1,30 +1,33 @@
-
-
 <template lang="pug">
-.q-pa-md(style="max-width: 400px")
-  q-form.q-gutter-md(@submit="onSubmit", @reset="onReset")
-    q-input(
-      filled,
-      v-model="login",
-      label="Login",
-      lazy-rules,
-      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+q-page.flex.justify-center.items-center
+  .q-pa-lg
+    q-form(
+      @submit="onSubmit",
+      @reset="onReset",
+      style="width: 40vw; max-width: 500px;min-width: 200px"
     )
+      q-input(
+        filled,
+        v-model="login",
+        label="Login",
+        lazy-rules,
+        :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+      )
 
-    q-input(
-      filled,
-      v-model="password",
-      label="Password",
-      lazy-rules,
-      type="password",
-      autocomplete="on",
-      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-    )
+      q-input(
+        filled,
+        v-model="password",
+        label="Password",
+        lazy-rules,
+        type="password",
+        autocomplete="on",
+        :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+      )
 
-    .column.q-gutter-md
-      q-btn(label="Log in", type="submit", color="primary")
-      q-btn(label="WhoAmI", color="primary", @click="printInfo")
-      q-btn(label="Log out", , @click="logout")
+      .column.q-gutter-y-md
+        q-btn(label="Log in", type="submit", color="primary")
+        //- q-btn(label="WhoAmI", color="primary", @click="printInfo")
+        //- q-btn(label="Log out", , @click="logout")
 </template>
 
 <script>
@@ -76,7 +79,6 @@ export default defineComponent({
           });
         }
       },
-      onReset() {},
     };
   },
   computed: {
