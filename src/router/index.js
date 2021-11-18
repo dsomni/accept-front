@@ -32,7 +32,7 @@ export default route(function ({store}) {
       }
       // console.log(to)
       next({
-        path: '/login',
+        path: '/form/login',
         query: {
            nextUrl: to.fullPath,
         }

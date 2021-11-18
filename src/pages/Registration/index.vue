@@ -9,7 +9,7 @@ q-page.flex.justify-center.items-center
     )
       q-avatar(size="xl", square, :class="{ 'q-ml-xs': !shouldShrink }")
         img(src="~assets/logo.svg")
-      span.q-ml-sm Accept | Вход
+      span.q-ml-sm Accept | Регистрация
     q-form.q-px-xl.q-pb-xl.q-pt-lg.column.q-gutter-y-sm(
       :class="{ 'full-form': shouldShrink, 'small-form': !shouldShrink }",
       @submit="onSubmit"
@@ -40,15 +40,15 @@ q-page.flex.justify-center.items-center
       .column.q-gutter-y-md.q-pt-md
         q-btn.q-pa-md.text-body1(label="Войти", type="submit", color="primary")
         //- q-btn(label="WhoAmI", color="primary", @click="printInfo")
-        q-btn(label="Log out", , @click="logout")
+        //- q-btn(label="Log out", , @click="logout")
 
       .q-mt-md.text-body1.text-grey-10
         div
-          | {{ 'Ещё нет аккаунта? ' }}
-          a.register-ref(:href="`/#/form/registration?nextUrl=${toPath}`") Зарегистририроваться
-        .q-mt-xs
+          | {{ 'Уже есть аккаунт? ' }}
+          a.login-ref(:href="`/#/form/login?nextUrl=${toPath}`") Войти
+        div.q-mt-xs
           | {{ 'Вернуться на ' }}
-          a.register-ref(href="/") главную страницу
+          a.login-ref(href="/") главную страницу
 </template>
 
 <script>
@@ -58,12 +58,12 @@ import { useQuasar } from "quasar";
 import { useStore, mapActions } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
-const limitWidth = 500;
+const limitWidth = 550;
 const limitWidthDependsHeight = 820;
 const limitWidthHeight = 500;
 
 export default defineComponent({
-  name: "LogIn",
+  name: "Registration",
   setup() {
     const q = useQuasar();
     const store = useStore();
@@ -113,7 +113,8 @@ export default defineComponent({
       };
       const response = await this.store.dispatch("users/logIn", User);
       if (response.status == 200) {
-        this.router.push({ path: this.toPath });
+        const toPath = this.route.query.nextUrl || "/";
+        this.router.push({ path: toPath });
         this.q.notify({
           color: "green-4",
           textColor: "white",

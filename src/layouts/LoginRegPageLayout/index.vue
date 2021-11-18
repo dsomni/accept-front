@@ -17,26 +17,8 @@ q-layout(view="hHh lpR fFf")
 
 <script>
 import { defineComponent } from "vue";
-import HeaderMenu from "components/HeaderMenu/index";
-
-const menuList = [
-  {
-    type: "reference",
-    label: "На главную",
-    reference: "/",
-    separator: true,
-  },
-];
 
 export default defineComponent({
-  name: "MainPageLayout",
-  setup() {
-    return {
-      menuList,
-    };
-  },
-  components: {
-    HeaderMenu,
-  },
+  name: "LoginRegPageLayout",
 });
 </script>
