@@ -4,8 +4,8 @@
 q-page.flex.justify-center.items-center
   q-resize-observer(@resize="onResize")
   div(:class="{ 'full-window': shouldShrink, 'small-window': !shouldShrink }")
-    .text-grey-10.text-h4.text-weight-medium.q-pl-xl.q-pt-xl(:class="{ 'center-title': shouldShrink}")
-      q-avatar.q-ml-xs(size="xl", square)
+    .text-grey-10.text-h4.text-weight-medium.q-pl-xl.q-mt-xl(:class="{ 'center-title': shouldShrink}")
+      q-avatar(size="xl", square, :class="{ 'q-ml-xs': !shouldShrink}")
         img(src="~assets/logo.svg")
       span.q-ml-sm Accept
     q-form.q-px-xl.q-pb-xl.q-pt-lg.column.q-gutter-y-sm(
