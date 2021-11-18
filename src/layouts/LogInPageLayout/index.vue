@@ -2,19 +2,16 @@
 
 <template lang="pug">
 q-layout(view="hHh lpR fFf")
-  q-header.bg-grey-1.text-grey-10(elevated, bordered)
-    q-toolbar.q-pa-md.vertical-middle
-      q-toolbar-title.text-h5.text-weight-medium
-        q-avatar.q-ml-xs(size="xl", square)
-          img(src="~assets/logo.svg")
-        span.q-ml-sm Accept
-
-      HeaderMenu(:menuList="menuList")
 
   q-page-container.bg-grey-1
-    router-view
+    q-img.fullscreen(
+      src="~assets/code2.jpg",
+    )
+      .z-top.transparent.fullscreen(
+        style="  max-height: 100vh;overflow-y: scroll; padding: 0px;"
+      )
+        router-view
 
-  Footer
 </template>
 
 
@@ -30,7 +27,6 @@ const menuList = [
     separator: true,
   },
 ];
-
 
 export default defineComponent({
   name: "MainPageLayout",

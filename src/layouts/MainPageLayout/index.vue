@@ -36,7 +36,7 @@ q-layout(view="hHh lpR lFf")
   q-page-container.bg-grey-1
     router-view
 
-  Footer
+  CustomFooter
 </template>
 
 
@@ -45,7 +45,7 @@ import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
 import HeaderMenu from "components/HeaderMenu/index";
 import DrawerMenu from "components/LeftDrawerMenu/index";
-import Footer from "components/Footer/index";
+import CustomFooter from "components/CustomFooter/index";
 
 const projectList = [
   {
@@ -128,7 +128,7 @@ export default defineComponent({
   components: {
     HeaderMenu,
     DrawerMenu,
-    Footer,
+    CustomFooter,
   },
 });
 </script>
