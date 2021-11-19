@@ -1,11 +1,19 @@
 import { api } from "boot/axios";
 
-export async function register({ dispatch }, form) {
-  await api.post('register', form);
-  let UserForm = new FormData();
-  UserForm.append('username', form.username);
-  UserForm.append('password', form.password);
-  await dispatch('logIn', UserForm);
+export async function register({ dispatch }, user) {
+  let response = null;
+  await api
+  .post('api/user', user)
+  .then((res) => {
+    response = res;
+  })
+  .catch((error) => {
+    if (error.response) {
+      response = error.response
+    }
+  });
+  await dispatch('logIn', user);
+  return response;
 }
 
 export async function logIn({ dispatch }, user) {
@@ -77,7 +85,7 @@ export async function refresh({ commit }) {
 }
 
 
-export async function checkLogin({ dispatch }, login) {
+export async function getUser({ dispatch }, login) {
   let response = null;
   await api
     .get(`api/user/${login}`)

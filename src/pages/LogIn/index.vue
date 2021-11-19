@@ -39,7 +39,7 @@ q-page.flex.justify-center.items-center
 
       .column.q-gutter-y-md.q-pt-md
         q-btn.q-pa-md.text-body1(label="Войти", type="submit", color="primary")
-        //- q-btn(label="WhoAmI", color="primary", @click="printInfo")
+        q-btn(label="WhoAmI", color="primary", @click="printInfo")
         q-btn(label="Log out", , @click="logout")
 
       .q-mt-md.text-body1.text-grey-10
@@ -146,7 +146,7 @@ export default defineComponent({
     },
     async printInfo() {
       let response = await this.store.dispatch("users/viewMe");
-      // console.log(this.store.getters["users/stateUser"]);
+      console.log(this.store.getters["users/stateUser"]);
     },
   },
 });

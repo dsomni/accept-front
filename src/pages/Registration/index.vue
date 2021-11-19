@@ -30,8 +30,8 @@ q-page.flex.justify-center.items-center
             filled,
             v-model="login",
             label="Логин",
+            autofocus,
             hint="Будет использован для входа в систему",
-            lazy-rules,
             :rules="[(val) => validateLogin(val)]"
           )
 
@@ -41,10 +41,11 @@ q-page.flex.justify-center.items-center
             filled,
             v-model="password",
             label="Пароль",
+            autofocus,
             lazy-rules,
             :type="isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :rules="[(val) => (val && val.length > 0) || 'Пожалуйста, заполните поле']"
+            :rules="[(val) => validatePassword(val)]"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
@@ -55,10 +56,9 @@ q-page.flex.justify-center.items-center
             filled,
             v-model="r_password",
             label="Повторите пароль",
-            lazy-rules,
             :type="r_isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :rules="[(val) => (val && val.length > 0) || 'Пожалуйста, заполните поле']"
+            :rules="[(val) => validateRPassword(val)]"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
@@ -73,34 +73,27 @@ q-page.flex.justify-center.items-center
             v-model="name",
             label="ФИО",
             type="text",
-            hint="Будет отображаться в системе рейтинга",
-            lazy-rules,
-            :rules="[(val) => (val && val.length > 0) || 'Пожалуйста, заполните поле']"
+            autofocus,
+            :rules="[(val) => validateName(val)]"
           )
           q-input(
             filled,
-            v-model="name",
+            v-model="email",
             label="Email",
             type="email",
             hint="Опционально",
-            lazy-rules,
-            :rules="[(val) => (val && val.length > 0) || 'Пожалуйста, заполните поле']"
-          )
-          q-checkbox.text-body1(
-            v-model="shouldNotify",
-            label="Получать уведомления на Email",
-            color="primary"
+            :rules="[(val) => validateEmail(val)]"
           )
 
       template(v-slot:navigation)
         q-stepper-navigation
           q-btn.q-pa-md.text-body1(
             no-caps,
-            @click="$refs.stepper.next()",
-            color="primary",
+            @click="step === 3 ? onSubmit() : $refs.stepper.next()",
+            :color="isNextDisable() ? 'grey-6' : 'primary'",
             :disable="isNextDisable()",
-            :label="step === 3 ? 'Зарегистрироваться' : 'Продолжить'",
-            :class="{'disabled-btn': isNextDisable}",
+            :loading="isLoading",
+            :label="step === 3 ? 'Зарегистрироваться' : 'Продолжить'"
           )
           q-btn.q-pa-md.q-ml-sm(
             v-if="step > 1",
@@ -129,6 +122,11 @@ import { useRouter, useRoute } from "vue-router";
 const limitWidth = 570;
 const limitWidthDependsHeight = 820;
 const limitWidthHeight = 500;
+
+const pwdRegExp = /^[0-9a-zA-Z!@#$%^&*]+$/;
+const nameRegExp = /^[A-Za-zА-ЯЁа-яё ]*$/;
+const emailRegExp =
+  /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
 
 export default defineComponent({
   name: "Registration",
@@ -159,14 +157,18 @@ export default defineComponent({
       r_password: ref(null),
       name: ref(null),
       email: ref(null),
-      shouldNotify: ref(false),
 
       shouldShrink,
       isPwd: ref(true),
       r_isPwd: ref(true),
       step: ref(1),
+      isLoading: ref(false),
 
       step1check: ref(false),
+      step21check: ref(false),
+      step22check: ref(false),
+      step31check: ref(false),
+      step32check: ref(true),
 
       toPath,
     };
@@ -180,40 +182,107 @@ export default defineComponent({
     document.title = "Registration | Accept";
   },
   methods: {
-    async validateLogin(val){
+    async validateLogin(val) {
       this.step1check = false;
-      if (val){
-        if (val.length >=5){
-          if(/^[0-9a-zA-Z]+$/.test(val)){
-            this.step1check = true;
-            return true
-          }else{
+      if (val) {
+        if (val.length >= 5) {
+          if (/^[0-9a-zA-Z]+$/.test(val)) {
+            this.isLoading = true;
+            const response = await this.store.dispatch("users/getUser", val);
+            this.isLoading = false;
+            if (response?.status == 404) {
+              this.step1check = true;
+              return true;
+            } else if (response?.status == 200) {
+              return "Такой логин уже занят";
+            } else {
+              return response?.statusText || "Ошибка сервера";
+            }
+          } else {
             return "Используйте только английские буквы и цифры";
           }
-        }else{
+        } else {
           return "Логин должен быть длиннее 5 символов";
         }
-      }else{
+      } else {
         return "Пожалуйста, заполните поле";
       }
     },
-    nextStep(stepper){
-      if (this.step==1 & this.step1check){
-        stepper.next()
+    validatePassword(val) {
+      this.step21check = false;
+      if (val) {
+        if (val.length >= 5) {
+          if (pwdRegExp.test(val)) {
+            this.step21check = true;
+            return true;
+          } else {
+            return "Пароль содержит недопустимые символы";
+          }
+        } else {
+          return "Пароль должен быть длиннее 5 символов";
+        }
+      } else {
+        return "Пожалуйста, заполните поле";
       }
     },
-    isNextDisable(){
-      if (this.step==1 & this.step1check){
+    validateRPassword(val) {
+      this.step22check = false;
+      if (val) {
+        if (val == this.password) {
+          this.step22check = true;
+          return true;
+        } else {
+          return "Пароли не совпадают";
+        }
+      } else {
+        return "Пожалуйста, заполните поле";
+      }
+    },
+    validateName(val) {
+      this.step31check = false;
+      if (val) {
+        if (nameRegExp.test(val)) {
+          this.step31check = true;
+          return true;
+        } else {
+          return "Используются недопустимые символы";
+        }
+      } else {
+        return "Пожалуйста, заполните поле";
+      }
+    },
+    validateEmail(val) {
+      this.step32check = false;
+      if (!!!val || emailRegExp.test(val)) {
+        this.step32check = true;
+        return true;
+      } else {
+        return "Неверный формат";
+      }
+    },
+    isNextDisable() {
+      if (
+        (this.step == 1 && this.step1check) ||
+        (this.step == 2 && this.step21check && this.step22check) ||
+        (this.step == 3 &&
+          this.step31check &&
+          this.step32check &&
+          this.step1check &&
+          this.step21check &&
+          this.step22check)
+      ) {
         return false;
       }
       return true;
     },
     async onSubmit() {
       const User = {
-        login: this.login.toString(),
-        password: this.password.toString(),
+        login: this.login.toString().trim(),
+        password: this.password.toString().trim(),
+        name: this.name.toString().trim(),
+        email: this.email?.toString().trim() || "",
       };
-      const response = await this.store.dispatch("users/logIn", User);
+      const response = await this.store.dispatch("users/register", User);
       if (response.status == 200) {
         const toPath = this.route.query.nextUrl || "/";
         this.router.push({ path: toPath });
