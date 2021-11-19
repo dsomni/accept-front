@@ -34,7 +34,8 @@ q-layout(view="hHh lpR lFf")
       DrawerMenu(:menuList="menuList")
 
   q-page-container.bg-grey-1
-    router-view
+    router-view(v-slot="{ Component }")
+      component(:is="Component")
 
   CustomFooter
 </template>

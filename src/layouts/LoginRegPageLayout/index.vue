@@ -2,15 +2,15 @@
 
 <template lang="pug">
 q-layout(view="hHh lpR fFf")
-
-  q-page-container.bg-grey-1
-    q-img.fullscreen(
-      src="~assets/code2.jpg",
-    )
-      .z-top.transparent.fullscreen(
-        style="  max-height: 100vh;overflow-y: scroll; padding: 0px;"
+  router-view(v-slot="{ Component }")
+    q-page-container.bg-grey-1
+      q-img.fullscreen(
+        src="~assets/code2.jpg",
       )
-        router-view
+        .z-top.transparent.fullscreen(
+          style="  max-height: 100vh;overflow-y: scroll; padding: 0px;"
+        )
+          component(:is="Component")
 
 </template>
 
