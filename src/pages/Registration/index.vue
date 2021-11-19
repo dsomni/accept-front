@@ -162,7 +162,7 @@ export default defineComponent({
       shouldShrink,
       isPwd: ref(true),
       repeated_isPwd: ref(true),
-      step: ref(2),
+      step: ref(1),
       isLoading: ref(false),
 
       step1check: ref(false),
