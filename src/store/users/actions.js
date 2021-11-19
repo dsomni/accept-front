@@ -76,3 +76,19 @@ export async function refresh({ commit }) {
   return response;
 }
 
+
+export async function checkLogin({ dispatch }, login) {
+  let response = null;
+  await api
+    .get(`api/user/${login}`)
+    .then((res) => {
+      response = res;
+    })
+    .catch((error) => {
+      if (error.response) {
+        response = error.response
+      }
+    });
+  return response;
+}
+

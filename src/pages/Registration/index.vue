@@ -32,7 +32,7 @@ q-page.flex.justify-center.items-center
             label="Логин",
             hint="Будет использован для входа в систему",
             lazy-rules,
-            :rules="[(val) => (val && val.length > 0) || 'Пожалуйста, заполните поле']"
+            :rules="[(val) => validateLogin(val)]"
           )
 
       q-step(:name="2", title="Пароль", icon="edit", :done="step > 2")
@@ -98,7 +98,9 @@ q-page.flex.justify-center.items-center
             no-caps,
             @click="$refs.stepper.next()",
             color="primary",
-            :label="step === 3 ? 'Зарегистрироваться' : 'Продолжить'"
+            :disable="isNextDisable()",
+            :label="step === 3 ? 'Зарегистрироваться' : 'Продолжить'",
+            :class="{'disabled-btn': isNextDisable}",
           )
           q-btn.q-pa-md.q-ml-sm(
             v-if="step > 1",
@@ -121,7 +123,7 @@ q-page.flex.justify-center.items-center
 import { defineComponent, ref } from "vue";
 
 import { useQuasar } from "quasar";
-import { useStore, mapActions } from "vuex";
+import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
 const limitWidth = 570;
@@ -164,6 +166,8 @@ export default defineComponent({
       r_isPwd: ref(true),
       step: ref(1),
 
+      step1check: ref(false),
+
       toPath,
     };
   },
@@ -176,6 +180,34 @@ export default defineComponent({
     document.title = "Registration | Accept";
   },
   methods: {
+    async validateLogin(val){
+      this.step1check = false;
+      if (val){
+        if (val.length >=5){
+          if(/^[0-9a-zA-Z]+$/.test(val)){
+            this.step1check = true;
+            return true
+          }else{
+            return "Используйте только английские буквы и цифры";
+          }
+        }else{
+          return "Логин должен быть длиннее 5 символов";
+        }
+      }else{
+        return "Пожалуйста, заполните поле";
+      }
+    },
+    nextStep(stepper){
+      if (this.step==1 & this.step1check){
+        stepper.next()
+      }
+    },
+    isNextDisable(){
+      if (this.step==1 & this.step1check){
+        return false;
+      }
+      return true;
+    },
     async onSubmit() {
       const User = {
         login: this.login.toString(),
