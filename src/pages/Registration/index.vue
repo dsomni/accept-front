@@ -42,10 +42,10 @@ q-page.flex.justify-center.items-center
             v-model="password",
             label="Пароль",
             autofocus,
-            lazy-rules,
             :type="isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :rules="[(val) => validatePassword(val)]"
+            :error-message="validatePassword()",
+            :error="!step21check"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
@@ -54,16 +54,17 @@ q-page.flex.justify-center.items-center
               )
           q-input(
             filled,
-            v-model="r_password",
+            v-model="repeated_password",
             label="Повторите пароль",
-            :type="r_isPwd ? 'password' : 'text'",
+            :type="repeated_isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :rules="[(val) => validateRPassword(val)]"
+            :error-message="validateRepeatedPassword()",
+            :error="!step22check"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
-                :name="r_isPwd ? 'visibility_off' : 'visibility'",
-                @click="r_isPwd = !r_isPwd"
+                :name="repeated_isPwd ? 'visibility_off' : 'visibility'",
+                @click="repeated_isPwd = !repeated_isPwd"
               )
 
       q-step(:name="3", title="Другое", , icon="edit")
@@ -154,14 +155,14 @@ export default defineComponent({
 
       login: ref(null),
       password: ref(null),
-      r_password: ref(null),
+      repeated_password: ref(null),
       name: ref(null),
       email: ref(null),
 
       shouldShrink,
       isPwd: ref(true),
-      r_isPwd: ref(true),
-      step: ref(1),
+      repeated_isPwd: ref(true),
+      step: ref(2),
       isLoading: ref(false),
 
       step1check: ref(false),
@@ -208,13 +209,14 @@ export default defineComponent({
         return "Пожалуйста, заполните поле";
       }
     },
-    validatePassword(val) {
+    validatePassword() {
       this.step21check = false;
+      const val = this.password;
       if (val) {
         if (val.length >= 5) {
           if (pwdRegExp.test(val)) {
             this.step21check = true;
-            return true;
+            return;
           } else {
             return "Пароль содержит недопустимые символы";
           }
@@ -225,12 +227,13 @@ export default defineComponent({
         return "Пожалуйста, заполните поле";
       }
     },
-    validateRPassword(val) {
+    validateRepeatedPassword() {
       this.step22check = false;
+      const val = this.repeated_password;
       if (val) {
         if (val == this.password) {
           this.step22check = true;
-          return true;
+          return;
         } else {
           return "Пароли не совпадают";
         }
