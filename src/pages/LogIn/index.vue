@@ -4,7 +4,7 @@
 q-page.flex.justify-center.items-center
   q-resize-observer(@resize="onResize")
   div(:class="{ 'full-window': shouldShrink, 'small-window': !shouldShrink }")
-    .text-grey-10.text-h4.text-weight-medium.q-pl-xl.q-mt-xl(
+    .text-grey-10.text-h4.text-weight-regular.q-pl-xl.q-mt-xl(
       :class="{ 'center-title': shouldShrink }"
     )
       q-avatar(size="xl", square, :class="{ 'q-ml-xs': !shouldShrink }")
@@ -58,7 +58,7 @@ import { useQuasar } from "quasar";
 import { useStore, mapActions } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
-const limitWidth = 500;
+const limitWidth = 570;
 const limitWidthDependsHeight = 820;
 const limitWidthHeight = 500;
 

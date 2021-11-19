@@ -10,3 +10,25 @@ $info      : #5ddcf5;
 $warning   : #f2f016;
 
 $primary_transparent: #006bc526;
+
+
+@font-face {
+  font-family: Lato;
+  src: url(/fonts/Lato-Regular.ttf);
+}
+@font-face {
+  font-family: LatoBold;
+  src: url(/fonts/Lato-Bold.ttf);
+}
+
+@font-face {
+  font-family: LatoBoldCyrillic;
+  src: url(/fonts/Lato-Bold-Cyrillic.ttf);
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url(/fonts/Exo2-Regular.ttf);
+}
+
+// $typography-font-family : 'Exo2', sans-serif !default;
