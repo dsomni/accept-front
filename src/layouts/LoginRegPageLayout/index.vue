@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-layout(view="hHh lpR fFf")
+q-layout.login-reg-page-layout(view="hHh lpR fFf")
   router-view(v-slot="{ Component }")
     q-page-container.bg-grey-1
       q-img.fullscreen(

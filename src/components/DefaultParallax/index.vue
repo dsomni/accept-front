@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-parallax.q-mb-xl(style="height: 60vh", :speed="1")
+q-parallax.q-mb-xl(style="height: 60vh; min-height: 315px;", :speed="1")
   template(v-slot:media)
     img(src="~assets/code.jpg")
 

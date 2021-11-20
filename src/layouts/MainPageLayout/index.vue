@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-layout(view="hHh lpR lFf")
+q-layout.main-page-layout(view="hHh lpR lFf")
   q-header.bg-grey-1.text-grey-10(reveal, elevated, bordered)
     q-resize-observer(@resize="onResizeHeader")
     q-toolbar.q-pa-md.vertical-middle
