@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-
+import { api } from "boot/axios";
 
 export default route(function ({store}) {
   const createHistory = process.env.SERVER
@@ -19,7 +19,58 @@ export default route(function ({store}) {
   })
 
 
+
   Router.beforeEach(async (to, from, next) => {
+
+    // await api
+    // .get('/')
+    // .then((res) => {
+    //   console.log(res)
+    // })
+    // .catch((error) => {
+    //   console.log('Error')
+    //   if (error.response) {
+    //     console.log(error.response)
+    //   }
+    // });
+
+    // await api
+    // .get('api/user/1')
+    // .then((res) => {
+    //   console.log(res)
+    // })
+    // .catch((error) => {
+    //   console.log('Error')
+    //   if (error.response) {
+    //     console.log(error.response)
+    //   }
+    // });
+
+    // await api
+    // .get('api/user/11')
+    // .then((res) => {
+    //   console.log(res)
+    // })
+    // .catch((error) => {
+    //   console.log('Error')
+    //   if (error.response) {
+    //     console.log(error.response)
+    //   }
+    // });
+
+    // await api
+    // .put('api/user/11')
+    // .then((res) => {
+    //   console.log(res)
+    // })
+    // .catch((error) => {
+    //   console.log('Error')
+    //   if (error.response) {
+    //     console.log(error.response)
+    //   }
+    // });
+
+
     const isAuthenticated = store.getters['users/isAuthenticated'];
     if (isAuthenticated){
       const response = await store.dispatch('users/viewMe');

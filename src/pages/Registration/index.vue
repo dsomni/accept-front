@@ -191,13 +191,15 @@ export default defineComponent({
             this.isLoading = true;
             const response = await this.store.dispatch("users/getUser", val);
             this.isLoading = false;
-            if (response?.status == 404) {
+            if (response.status == 404) {
               this.step1check = true;
               return true;
-            } else if (response?.status == 200) {
-              return "Такой логин уже занят";
             } else {
-              return response?.statusText || "Ошибка сервера";
+              return (
+                response?.detail?.descriptionRU ||
+                response?.detail?.description ||
+                `${response.status}: ${response.statusText}`
+              );
             }
           } else {
             return "Используйте только английские буквы и цифры";
@@ -292,13 +294,13 @@ export default defineComponent({
         this.q.notify({
           color: "green-4",
           textColor: "white",
-          message: response.data?.detail || "Successfully",
+          message: "Вы успешно зарегистрированы",
         });
       } else {
         this.q.notify({
           type: "negative",
           message:
-            response.data?.detail ||
+            response?.detail?.descriptionRU || response?.detail?.description ||
             `${response.status}: ${response.statusText}`,
           timeout: 8000,
         });

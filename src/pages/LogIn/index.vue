@@ -45,7 +45,7 @@ q-page.flex.justify-center.items-center
       .q-mt-md.text-body1.text-grey-10
         div
           | {{ 'Ещё нет аккаунта? ' }}
-          a.register-ref(:href="`/#/form/registration?nextUrl=${toPath}`") Зарегистририроваться
+          a.register-ref(:href="`/#/form/registration?nextUrl=${toPath}`") Зарегистрироваться
         .q-mt-xs
           | {{ 'Вернуться на ' }}
           a.register-ref(href="/") главную страницу
@@ -112,18 +112,19 @@ export default defineComponent({
         password: this.password.toString(),
       };
       const response = await this.store.dispatch("users/logIn", User);
+      // console.log(response)
       if (response.status == 200) {
         this.router.push({ path: this.toPath });
         this.q.notify({
           color: "green-4",
           textColor: "white",
-          message: response.data?.detail || "Successfully",
+          message: "Вход выполнен",
         });
       } else {
         this.q.notify({
           type: "negative",
           message:
-            response.data?.detail ||
+            response?.detail?.descriptionRU || response?.detail?.description ||
             `${response.status}: ${response.statusText}`,
           timeout: 8000,
         });
