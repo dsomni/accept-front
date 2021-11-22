@@ -28,62 +28,66 @@ q-page.flex.justify-center.items-center
         .q-pa-none.text-h6.column.q-gutter-y-sm
           q-input(
             filled,
-            v-model="login",
+            v-model="validator.form.loginForm.login.$model",
             label="Логин",
             autofocus,
             hint="Будет использован для входа в систему",
-            :rules="[(val) => validateLogin(val)]"
+            :error-message="errorMsgLogin()",
+            :error="!!validator.form.loginForm.login.$error"
           )
 
       q-step(:name="2", title="Пароль", icon="edit", :done="step > 2")
         .q-pa-none.text-h6.column.q-gutter-y-sm
           q-input(
             filled,
-            v-model="password",
+            v-model="validator.form.passwordForm.password.$model",
             label="Пароль",
             autofocus,
             :type="isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :error-message="validatePassword()",
-            :error="!step21check"
+            :error-message="errorMsgPassword()",
+            :error="!!validator.form.passwordForm.password.$error"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
                 :name="isPwd ? 'visibility_off' : 'visibility'",
                 @click="isPwd = !isPwd"
               )
+
           q-input(
             filled,
-            v-model="repeated_password",
+            v-model="validator.form.passwordForm.confirmPassword.$model",
             label="Повторите пароль",
-            :type="repeated_isPwd ? 'password' : 'text'",
+            :type="confirm_isPwd ? 'password' : 'text'",
             autocomplete="on",
-            :error-message="validateRepeatedPassword()",
-            :error="!step22check"
+            :error-message="errorMsgConfirmPassword()",
+            :error="!!validator.form.passwordForm.confirmPassword.$error"
           )
             template(v-slot:append)
               q-icon.cursor-pointer(
-                :name="repeated_isPwd ? 'visibility_off' : 'visibility'",
-                @click="repeated_isPwd = !repeated_isPwd"
+                :name="confirm_isPwd ? 'visibility_off' : 'visibility'",
+                @click="confirm_isPwd = !confirm_isPwd"
               )
 
       q-step(:name="3", title="Другое", , icon="edit")
         .q-pa-none.text-h6.column.q-gutter-y-sm
           q-input(
             filled,
-            v-model="name",
+            v-model="validator.form.infoForm.name.$model",
             label="ФИО",
             type="text",
             autofocus,
-            :rules="[(val) => validateName(val)]"
+            :error-message="errorMsgName()",
+            :error="!!validator.form.infoForm.name.$error"
           )
           q-input(
             filled,
-            v-model="email",
+            v-model="validator.form.infoForm.email.$model",
             label="Email",
             type="email",
             hint="Опционально",
-            :rules="[(val) => validateEmail(val)]"
+            :error-message="errorMsgEmail()",
+            :error="!!validator.form.infoForm.email.$error"
           )
 
       template(v-slot:navigation)
@@ -120,14 +124,12 @@ import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
+import useVuelidate from "@vuelidate/core";
+import { required, sameAs, minLength, email, helpers } from "@vuelidate/validators";
+
 const limitWidth = 570;
 const limitWidthDependsHeight = 820;
 const limitWidthHeight = 500;
-
-const pwdRegExp = /^[0-9a-zA-Z!@#$%^&*]+$/;
-const nameRegExp = /^[A-Za-zА-ЯЁа-яё ]*$/;
-const emailRegExp =
-  /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
 
 export default defineComponent({
   name: "Registration",
@@ -136,6 +138,7 @@ export default defineComponent({
     const store = useStore();
     const router = useRouter();
     const route = useRoute();
+    const validator = useVuelidate();
 
     const shouldShrink = ref(false);
     if (
@@ -152,26 +155,33 @@ export default defineComponent({
       store,
       router,
       route,
-
-      login: ref(null),
-      password: ref(null),
-      repeated_password: ref(null),
-      name: ref(null),
-      email: ref(null),
+      validator,
 
       shouldShrink,
+
       isPwd: ref(true),
-      repeated_isPwd: ref(true),
+      confirm_isPwd: ref(true),
       step: ref(1),
       isLoading: ref(false),
 
-      step1check: ref(false),
-      step21check: ref(false),
-      step22check: ref(false),
-      step31check: ref(false),
-      step32check: ref(true),
-
       toPath,
+    };
+  },
+  data() {
+    return {
+      form: {
+        loginForm: {
+          login: "",
+        },
+        passwordForm: {
+          password: "",
+          confirmPassword: "",
+        },
+        infoForm: {
+          name: "",
+          email: "",
+        },
+      },
     };
   },
   computed: {
@@ -183,109 +193,111 @@ export default defineComponent({
     document.title = "Registration | Accept";
   },
   methods: {
-    async validateLogin(val) {
-      this.step1check = false;
-      if (val) {
-        if (val.length >= 5) {
-          if (/^[0-9a-zA-Z]+$/.test(val)) {
-            this.isLoading = true;
-            const response = await this.store.dispatch("users/getUser", val);
-            this.isLoading = false;
-            if (response.status == 404) {
-              this.step1check = true;
-              return true;
-            } else {
-              return (
-                response?.detail?.descriptionRU ||
-                response?.detail?.description ||
-                `${response.status}: ${response.statusText}`
-              );
-            }
-          } else {
-            return "Используйте только английские буквы и цифры";
-          }
-        } else {
-          return "Логин должен быть длиннее 5 символов";
-        }
-      } else {
-        return "Пожалуйста, заполните поле";
-      }
-    },
-    validatePassword() {
-      this.step21check = false;
-      const val = this.password;
-      if (val) {
-        if (val.length >= 5) {
-          if (pwdRegExp.test(val)) {
-            this.step21check = true;
-            return;
-          } else {
-            return "Пароль содержит недопустимые символы";
-          }
-        } else {
-          return "Пароль должен быть длиннее 5 символов";
-        }
-      } else {
-        return "Пожалуйста, заполните поле";
-      }
-    },
-    validateRepeatedPassword() {
-      this.step22check = false;
-      const val = this.repeated_password;
-      if (val) {
-        if (val == this.password) {
-          this.step22check = true;
-          return;
-        } else {
-          return "Пароли не совпадают";
-        }
-      } else {
-        return "Пожалуйста, заполните поле";
-      }
-    },
-    validateName(val) {
-      this.step31check = false;
-      if (val) {
-        if (nameRegExp.test(val)) {
-          this.step31check = true;
-          return true;
-        } else {
-          return "Используются недопустимые символы";
-        }
-      } else {
-        return "Пожалуйста, заполните поле";
-      }
-    },
-    validateEmail(val) {
-      this.step32check = false;
-      if (!!!val || emailRegExp.test(val)) {
-        this.step32check = true;
+    async validateLoginUniqueness(login) {
+      this.isLoading = true;
+      const response = await this.store.dispatch("users/getUser", login);
+      this.isLoading = false;
+      if (response.status == 404) {
         return true;
-      } else {
-        return "Неверный формат";
+      }
+      return false;
+    },
+
+    validateLoginSymbols(login) {
+      const validLoginRegExp = /^[0-9a-zA-Z]+$/;
+      if (validLoginRegExp.test(login)) {
+        return true;
+      }
+      return false;
+    },
+
+    validatePasswordSymbols(password) {
+      const validPasswordRegExp = /^[0-9a-zA-Z!@#$%^&*]+$/;
+      if (validPasswordRegExp.test(password)) {
+        return true;
+      }
+      return false;
+    },
+
+    validateNameSymbols(name) {
+      const validNameRegExp = /^[A-Za-zА-ЯЁа-яё ]*$/;
+      if (validNameRegExp.test(name)) {
+        return true;
+      }
+      return false;
+    },
+
+    errorMsgLogin() {
+      if (this.validator.form.loginForm.login.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.form.loginForm.login.minLength.$invalid) {
+        return `Логин должен быть не короче ${this.validator.form.loginForm.login.minLength.$params.min} символов`;
+      }
+      if (this.validator.form.loginForm.login.regExpValidation.$invalid) {
+        return `Используются недопустимые символы`;
+      }
+      if (this.validator.form.loginForm.login.isUnique.$invalid) {
+        return `Такой логин уже занят`;
       }
     },
+
+    errorMsgPassword() {
+      if (this.validator.form.passwordForm.password.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.form.passwordForm.password.minLength.$invalid) {
+        return `Пароль должен быть не короче ${this.validator.form.loginForm.login.minLength.$params.min} символов`;
+      }
+
+      if (this.validator.form.passwordForm.password.regExpValidation.$invalid) {
+        return `Используются недопустимые символы`;
+      }
+    },
+
+    errorMsgConfirmPassword() {
+      if (this.validator.form.passwordForm.confirmPassword.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (
+        this.validator.form.passwordForm.confirmPassword.sameAsPassword.$invalid
+      ) {
+        return `Пароли не совпадают`;
+      }
+    },
+
+    errorMsgName() {
+      if (this.validator.form.infoForm.name.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.form.infoForm.name.regExpValidation.$invalid) {
+        return `Используются недопустимые символы`;
+      }
+    },
+
+    errorMsgEmail() {
+      if (this.validator.form.infoForm.email.email.$invalid) {
+        return `Некорректный формат`;
+      }
+    },
+
     isNextDisable() {
       if (
-        (this.step == 1 && this.step1check) ||
-        (this.step == 2 && this.step21check && this.step22check) ||
-        (this.step == 3 &&
-          this.step31check &&
-          this.step32check &&
-          this.step1check &&
-          this.step21check &&
-          this.step22check)
+        (this.step == 1 && !this.validator.form.loginForm.$invalid) ||
+        (this.step == 2 && !this.validator.form.passwordForm.$invalid) ||
+        (this.step == 3 && !this.validator.form.$invalid)
       ) {
         return false;
       }
       return true;
     },
+
     async onSubmit() {
       const User = {
-        login: this.login.toString().trim(),
-        password: this.password.toString().trim(),
-        name: this.name.toString().trim(),
-        email: this.email?.toString().trim() || "",
+        login: this.form.loginForm.login.toString().trim(),
+        password: this.form.passwordForm.password.toString().trim(),
+        name: this.form.infoForm.name.toString().trim(),
+        email: this.form.infoForm.email?.toString().trim() || "",
       };
       const response = await this.store.dispatch("users/register", User);
       if (response.status == 200) {
@@ -300,12 +312,14 @@ export default defineComponent({
         this.q.notify({
           type: "negative",
           message:
-            response?.detail?.descriptionRU || response?.detail?.description ||
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
             `${response.status}: ${response.statusText}`,
           timeout: 8000,
         });
       }
     },
+
     onResize(size) {
       if (
         size.width < limitWidth ||
@@ -316,15 +330,40 @@ export default defineComponent({
         this.shouldShrink = false;
       }
     },
-    async logout() {
-      let response = await this.store.dispatch("users/logOut");
-      const toPath = this.route.query.nextUrl || "/login";
-      this.router.push({ path: toPath });
-    },
-    async printInfo() {
-      let response = await this.store.dispatch("users/viewMe");
-      // console.log(this.store.getters["users/stateUser"]);
-    },
+  },
+  validations() {
+    return {
+      form: {
+        loginForm: {
+          login: {
+            required,
+            minLength: minLength(5),
+            regExpValidation: this.validateLoginSymbols,
+            isUnique: helpers.withAsync(this.validateLoginUniqueness)
+          },
+        },
+        passwordForm: {
+          password: {
+            required,
+            minLength: minLength(5),
+            regExpValidation: this.validatePasswordSymbols,
+          },
+          confirmPassword: {
+            required,
+            sameAsPassword: sameAs(this.form.passwordForm.password),
+          },
+        },
+        infoForm: {
+          name: {
+            required,
+            regExpValidation: this.validateNameSymbols,
+          },
+          email: {
+            email,
+          },
+        },
+      },
+    };
   },
 });
 </script>
