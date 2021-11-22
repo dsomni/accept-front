@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-
+import { api } from "boot/axios";
 
 export default route(function ({store}) {
   const createHistory = process.env.SERVER
@@ -19,18 +19,20 @@ export default route(function ({store}) {
   })
 
 
+
   Router.beforeEach(async (to, from, next) => {
+
     const isAuthenticated = store.getters['users/isAuthenticated'];
+    await store.dispatch('users/viewMe');
     if (isAuthenticated){
-      const response = await store.dispatch('users/viewMe');
-      await store.dispatch('users/refresh');
+     await store.dispatch('users/refresh');
     }
     if (to.matched.some(record => record.meta.requiresAuth)) {
       if (store.getters['users/isAuthenticated']) {
         next();
         return;
       }
-      // console.log(to)
+
       next({
         path: '/form/login',
         query: {
