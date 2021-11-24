@@ -2,37 +2,39 @@
 
 <template lang="pug">
 q-layout.main-page-layout(view="hHh lpR lFf")
-  q-header.bg-grey-1.text-grey-10(reveal, elevated, bordered)
-    q-resize-observer(@resize="onResizeHeader")
-    q-toolbar.q-pa-md.vertical-middle
-      q-btn(
-        v-if="shouldShrinkHeader",
-        dense,
-        flat,
-        round,
-        icon="menu",
-        @click="toggleLeftDrawer"
-      )
-
-      q-toolbar-title.text-h5.text-weight-medium
-        q-avatar.q-ml-xs(size="xl", square)
-          img(src="~assets/logo.svg")
-        span.q-ml-sm Accept
-
-      HeaderMenu(:menuList="menuList", v-if="!shouldShrinkHeader")
-
-  q-drawer.bg-grey-1.text-subtitle1(
-    v-model="leftDrawerOpen",
-    v-if="shouldShrinkHeader",
+  div(
     v-click-outside="onClickOutsideDrawer",
-    side="left",
-    bordered,
-    overlay,
-    :width="200",
-    :breakpoint="200"
   )
-    q-scroll-area.fit
-      DrawerMenu(:menuList="menuList")
+    q-header.bg-grey-1.text-grey-10(reveal, elevated, bordered)
+      q-resize-observer(@resize="onResizeHeader")
+      q-toolbar.q-pa-md.vertical-middle
+        q-btn(
+          v-if="shouldShrinkHeader",
+          dense,
+          flat,
+          round,
+          icon="menu",
+          @click="toggleLeftDrawer"
+        )
+
+        q-toolbar-title.text-h5.text-weight-medium
+          q-avatar.q-ml-xs(size="xl", square)
+            img(src="~assets/logo.svg")
+          span.q-ml-sm Accept
+
+        HeaderMenu(:menuList="menuList", v-if="!shouldShrinkHeader")
+
+    q-drawer.bg-grey-1.text-subtitle1(
+      v-model="leftDrawerOpen",
+      v-if="shouldShrinkHeader",
+      side="left",
+      bordered,
+      overlay,
+      :width="200",
+      :breakpoint="200"
+    )
+      q-scroll-area.fit
+        DrawerMenu(:menuList="menuList")
 
   q-page-container.bg-grey-1
     router-view(v-slot="{ Component }")
@@ -132,7 +134,9 @@ export default defineComponent({
       }
     },
     onClickOutsideDrawer() {
-      this.leftDrawerOpen = false;
+      if(this.leftDrawerOpen){
+        this.leftDrawerOpen = false;
+      }
     },
   },
   components: {
