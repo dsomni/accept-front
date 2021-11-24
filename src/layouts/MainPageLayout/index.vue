@@ -24,6 +24,7 @@ q-layout.main-page-layout(view="hHh lpR lFf")
   q-drawer.bg-grey-1.text-subtitle1(
     v-model="leftDrawerOpen",
     v-if="shouldShrinkHeader",
+    v-click-outside="onClickOutsideDrawer",
     side="left",
     bordered,
     overlay,
@@ -47,6 +48,8 @@ import { useQuasar } from "quasar";
 import HeaderMenu from "components/HeaderMenu/index";
 import DrawerMenu from "components/LeftDrawerMenu/index";
 import CustomFooter from "components/CustomFooter/index";
+
+import vClickOutside from "click-outside-vue3";
 
 const projectList = [
   {
@@ -94,6 +97,9 @@ const limitWidthHeader = 695;
 
 export default defineComponent({
   name: "MainPageLayout",
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   setup() {
     const leftDrawerOpen = ref(false);
     const shouldShrinkHeader = ref(false);
@@ -124,6 +130,9 @@ export default defineComponent({
       } else {
         this.shouldShrinkHeader = false;
       }
+    },
+    onClickOutsideDrawer() {
+      this.leftDrawerOpen = false;
     },
   },
   components: {
