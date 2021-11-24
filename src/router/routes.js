@@ -1,7 +1,11 @@
+import LoginRegPageLayout from 'layouts/LoginRegPageLayout/index.vue';
+import EduLayout from 'layouts/EduLayout/index.vue';
+
 import LogIn from 'src/pages/LogIn/index.vue';
 import Registration from 'src/pages/Registration/index.vue';
-import LoginRegPageLayout from 'layouts/LoginRegPageLayout/index.vue';
 import TestBack from 'src/pages/TestBack/index.vue';
+
+import EduMain from 'src/pages/Edu/Main/index.vue';
 
 
 const routes = [
@@ -20,6 +24,14 @@ const routes = [
     children: [
       { path: 'login', component: LogIn},
       { path: 'registration', component: Registration},
+    ]
+  },
+
+  {
+    path: '/edu',
+    component: EduLayout,
+    children: [
+      { path: '', component: EduMain},
     ]
   },
 
