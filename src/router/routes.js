@@ -30,6 +30,7 @@ const routes = [
   {
     path: '/edu',
     component: EduLayout,
+    meta:{requiresAuth: true},
     children: [
       { path: '', component: EduMain},
     ]
