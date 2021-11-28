@@ -297,7 +297,7 @@ export default defineComponent({
         login: this.form.loginForm.login.toString().trim(),
         password: this.form.passwordForm.password.toString().trim(),
         name: this.form.infoForm.name.toString().trim(),
-        email: this.form.infoForm.email?.toString().trim() || "",
+        email: this.form.infoForm.email?.toString().trim() || null,
       };
       const response = await this.store.dispatch("users/register", User);
       if (response.status == 200) {
