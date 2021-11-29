@@ -52,6 +52,7 @@ import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 
+
 import HeaderMenu from "components/HeaderMenu/index";
 import DrawerMenu from "components/LeftDrawerMenu/index";
 import CustomFooter from "components/CustomFooter/index";
@@ -67,15 +68,16 @@ const menuList = [
   },
   {
     type: "reference",
-    label: "Главная",
-    reference: "/",
+    label: "Задания",
+    reference: "/#/edu/assignments",
     separator: true,
   },
   {
     type: "reference",
-    label: "Главная",
-    reference: "/",
+    label: "Ученики",
+    reference: "/#/edu/students",
     separator: true,
+    requiredRole: "teacher"
   },
 ];
 
@@ -91,6 +93,8 @@ export default defineComponent({
     const shouldShrinkHeader = ref(false);
     const q = useQuasar();
     const router = useRouter();
+
+
     if (q.screen.width < limitWidthHeader) {
       shouldShrinkHeader.value = true;
     }

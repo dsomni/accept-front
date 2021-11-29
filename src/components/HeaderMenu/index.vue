@@ -4,21 +4,23 @@
 .row.q-mx-xl
   q-list.row.q-gutter-x-sm
     template(v-for="(menuItem, index) in menuList", :key="index")
-      RefButton(
-        v-if="menuItem.type == 'reference'",
-        :reference="menuItem.reference",
-        :label="menuItem.label",
-        :underline="false"
+      div(
+         v-if="checkPermission(menuItem)"
       )
+        RefButton(
+          v-if="menuItem.type == 'reference'",
+          :reference="menuItem.reference",
+          :label="menuItem.label",
+          :underline="false"
+        )
 
-      DropDown(
-        v-if="menuItem.type == 'dropDown'",
-        :list="menuItem.list",
-        :label="menuItem.label",
-        :underline="false"
-      )
+        DropDown(
+          v-if="menuItem.type == 'dropDown'",
+          :list="menuItem.list",
+          :label="menuItem.label",
+          :underline="false"
+        )
 
-      q-separator(:key="'sep' + index", v-if="menuItem.separator")
 </template>
 
 <script>
@@ -29,17 +31,16 @@ import DropDown from "components/DefaultDropDownBtn/index";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
 
-
 export default defineComponent({
   name: "HeaderMenu",
-  setup () {
+  setup() {
     const store = useStore();
     const q = useQuasar();
 
     return {
       store,
-      q
-    }
+      q,
+    };
   },
   props: {
     menuList: Array,
@@ -48,7 +49,24 @@ export default defineComponent({
     RefButton,
     DropDown,
   },
+  computed: {
+    isTeacher() {
+      const role = this.store.getters["users/role"];
+      return role && (role == "teacher" || role == "admin");
+    },
+  },
   methods: {
+    checkPermission(item) {
+      if (!item.requiredRole) {
+        return true;
+      }
+
+      if (item.requiredRole == "teacher" && this.isTeacher) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 });
 </script>

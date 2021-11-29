@@ -55,7 +55,7 @@ q-page.flex.justify-center.items-center
 import { defineComponent, ref } from "vue";
 
 import { useQuasar } from "quasar";
-import { useStore, mapActions } from "vuex";
+import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
 const limitWidth = 570;
