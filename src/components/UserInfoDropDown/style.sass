@@ -1,0 +1,27 @@
+.header-drop-down
+  font-family: Exo2
+  font-size: 1.2rem
+
+
+.header-drop-down-undrln
+  border-bottom: 0.25rem solid #ffffff00
+  border-radius: 0px
+
+.header-drop-down-undrln:hover
+  border-bottom: 0.25rem solid $primary
+
+body.desktop .q-focusable:focus .header-drop-down .q-focus-helper,
+body.desktop .q-hoverable:hover .header-drop-down .q-focus-helper
+  background: $primary
+  opacity: 0.15
+body.ios .q-hoverable:active .header-drop-down .q-focus-helper
+  background: $primary
+  opacity: 0.15
+
+.q-focus-helper .header-drop-down
+  opacity: 0
+  transition: unset
+
+.dialog-stye
+  font-family: Exo2
+  font-size: 1.2rem

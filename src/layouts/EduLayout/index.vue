@@ -23,9 +23,17 @@ q-layout.main-page-layout(view="hHh lpR lFf")
             @click="goToMainPage"
           )
             img(src="~assets/logo.svg")
-          span.q-ml-sm.q-py-sm.q-pr-md(style="cursor: pointer", @click="goToMainPage") Образование
+          span.q-ml-sm.q-py-sm.q-pr-md(
+            style="cursor: pointer",
+            @click="goToMainPage"
+          ) Образование
 
         HeaderMenu(:menuList="menuList", v-if="!shouldShrinkHeader")
+        UserInfo(
+          :name="getDisplayedName",
+          :onLogOutDialog="openLogOutDialog",
+          v-if="!shouldShrinkHeader"
+        )
 
     q-drawer.bg-grey-1.text-subtitle1(
       v-model="leftDrawerOpen",
@@ -38,6 +46,10 @@ q-layout.main-page-layout(view="hHh lpR lFf")
     )
       q-scroll-area.fit
         DrawerMenu(:menuList="menuList")
+        UserInfoDrawer(
+          :name="getDisplayedName",
+          :onLogOutDialog="openLogOutDialog"
+        )
 
   q-page-container.bg-grey-1
     router-view(v-slot="{ Component }")
@@ -50,12 +62,14 @@ q-layout.main-page-layout(view="hHh lpR lFf")
 <script>
 import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
-import { useRouter } from "vue-router";
-
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 
 import HeaderMenu from "components/HeaderMenu/index";
 import DrawerMenu from "components/LeftDrawerMenu/index";
 import CustomFooter from "components/CustomFooter/index";
+import UserInfo from "components/UserInfoDropDown/index";
+import UserInfoDrawer from "components/UserInfoExpansionItemDrawer/index";
 
 import vClickOutside from "click-outside-vue3";
 
@@ -77,7 +91,7 @@ const menuList = [
     label: "Ученики",
     reference: "/#/edu/students",
     separator: true,
-    requiredRole: "teacher"
+    requiredRole: "teacher",
   },
 ];
 
@@ -93,16 +107,23 @@ export default defineComponent({
     const shouldShrinkHeader = ref(false);
     const q = useQuasar();
     const router = useRouter();
+    const store = useStore();
+    const route = useRoute();
 
+    const limitWidthHeaderWithLogin =
+      limitWidthHeader + store.getters["users/login"].length;
 
-    if (q.screen.width < limitWidthHeader) {
+    if (q.screen.width < limitWidthHeaderWithLogin) {
       shouldShrinkHeader.value = true;
     }
 
     return {
       q,
       router,
+      route,
+      store,
 
+      limitWidthHeaderWithLogin,
       shouldShrinkHeader,
       menuList,
       leftDrawerOpen,
@@ -115,13 +136,16 @@ export default defineComponent({
     getLimitWidth() {
       return 700;
     },
+    getDisplayedName() {
+      return this.store.getters["users/login"];
+    },
   },
   methods: {
     goToMainPage() {
       this.router.push({ path: "/" });
     },
     onResizeHeader(size) {
-      if (size.width < limitWidthHeader) {
+      if (size.width < this.limitWidthHeaderWithLogin) {
         this.shouldShrinkHeader = true;
       } else {
         this.shouldShrinkHeader = false;
@@ -130,11 +154,61 @@ export default defineComponent({
     onClickOutsideDrawer() {
       this.leftDrawerOpen = false;
     },
+    async openLogOutDialog() {
+      this.q
+        .dialog({
+          title: "Вы действительно хотите выйти?",
+          cancel: true,
+          class: "dialog-stye",
+          focus: "none",
+          ok: {
+            label: "Да",
+            flat: true,
+            color: "primary",
+          },
+          cancel: {
+            label: "Отмена",
+            flat: true,
+            color: "negative",
+          },
+        })
+        .onOk(async () => {
+          await this.logout();
+        })
+        .onCancel(() => {});
+    },
+    async logout() {
+      let response = await this.store.dispatch("users/logOut");
+      if (response.status == 200) {
+        this.router.push({
+          path: "/form/login",
+          query: {
+            nextUrl: this.route.fullPath,
+          },
+        });
+        this.q.notify({
+          color: "green-4",
+          textColor: "white",
+          message: "Вы успешно вышли из системы",
+        });
+      } else {
+        this.q.notify({
+          type: "negative",
+          message:
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
+            `${response.status}: ${response.statusText}`,
+          timeout: 8000,
+        });
+      }
+    },
   },
   components: {
     HeaderMenu,
     DrawerMenu,
     CustomFooter,
+    UserInfo,
+    UserInfoDrawer,
   },
 });
 </script>
