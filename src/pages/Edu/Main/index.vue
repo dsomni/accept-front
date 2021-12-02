@@ -40,9 +40,8 @@ q-page.q-pa-xl
         style="max-width: 250px"
       )
         .flex.items-center.q-gutter-x-sm
-          div
-            .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem") {{ props.row.title }}
-            q-space
+          .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem") {{ props.row.title }}
+          q-space
 
           .text-grey-7(v-for="(tag, index) in props.row.tags", :key="index") {{ tag + (index == props.row.tags.length - 1 ? ' ' : ', ') }}
 </template>
