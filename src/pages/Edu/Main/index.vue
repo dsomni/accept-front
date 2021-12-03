@@ -1,9 +1,9 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-page.q-pa-xl
-  q-table(
-    no-hover,
+q-page
+  q-table.q-ma-lg.q-pa-lg(
+    bordered,
     :rows="rows",
     :columns="columns",
     row-key="name",
