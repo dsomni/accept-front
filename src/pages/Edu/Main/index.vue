@@ -3,7 +3,6 @@
 <template lang="pug">
 q-page.q-pa-xl
   q-table(
-    title="Задачи",
     :rows="rows",
     :columns="columns",
     row-key="name",
@@ -17,37 +16,71 @@ q-page.q-pa-xl
     no-results-label="Ничего не найдено",
     binary-state-sort
   )
+    template(v-slot:top-left)
+      q-select(
+        v-model="visibleColumns",
+        multiple,
+        outlined,
+        dense,
+        options-dense,
+        display-value="Поля",
+        emit-value,
+        map-options,
+        :options="columns.filter((item) => !item.required)",
+        option-value="name",
+        style="min-width: 150px"
+      )
+
     template(v-slot:top-right)
       .flex.q-gutter-x-md
         q-select(
-          v-model="visibleColumns",
+          v-model="filterObj.verdictSort",
+          transition-show="jump-up",
+          transition-hide="jump-up",
           multiple,
           outlined,
           dense,
           options-dense,
-          display-value="Поля",
+          display-value="Вердикты",
           emit-value,
+          :use-chips="filterObj.verdictSort.length > 0",
           map-options,
-          :options="columns.filter((item) => !item.required)",
+          :options="verdicts",
           option-value="name",
           style="min-width: 150px"
         )
+          template(v-if="filterObj.verdictSort.length > 0", v-slot:append)
+            q-icon.cursor-pointer(
+              name="clear",
+              color="primary",
+              @click.stop="filterObj.verdictSort = []"
+            )
 
         q-select(
           v-model="filterObj.tagSort",
+          transition-show="jump-up",
+          transition-hide="jump-up",
           multiple,
           outlined,
           dense,
           options-dense,
           display-value="Теги",
           emit-value,
+          :use-chips="filterObj.tagSort.length > 0",
           map-options,
+          virtual-scroll-slice-size="2",
           :options="tags",
           option-value="name",
-          style="min-width: 150px"
+          style="min-width: 150px; max-width: 350px"
         )
+          template(v-if="filterObj.tagSort.length > 0", v-slot:append)
+            q-icon.cursor-pointer(
+              name="clear",
+              color="primary",
+              @click.stop="filterObj.tagSort = []"
+            )
 
-        q-input(
+        q-input.text-subtitle1(
           borderless,
           dense,
           debounce="300",
@@ -159,9 +192,9 @@ for (let i = 1; i <= N; i++) {
         "алгоритмы",
         "строки",
         "массивы",
-        "алгоритм",
+        "алгоритмы",
         "массивы",
-        "алгоритм",
+        "алгоритмы",
       ],
       grade: 10,
       verdict: "WA",
@@ -170,7 +203,17 @@ for (let i = 1; i <= N; i++) {
   }
 }
 
-const tags = ["алгоритмы", "строки", "массивы"];
+const tags = [
+  "алгоритмы",
+  "строки",
+  "массивы",
+  "qwer",
+  "qwert",
+  "qwerty",
+  "qwertyu",
+  "qwertyui",
+];
+const verdicts = ["WA", "OK"];
 
 export default defineComponent({
   name: "EduMain",
@@ -178,7 +221,8 @@ export default defineComponent({
   setup() {
     const filterObj = ref({
       titleSort: "",
-      tagSort: tags,
+      tagSort: [],
+      verdictSort: [],
     });
 
     return {
@@ -191,17 +235,24 @@ export default defineComponent({
       columns,
       rows,
       tags,
+      verdicts,
     };
   },
   methods: {
     customFilter(rows) {
       let filtered = rows;
 
-      console.log(this.filterObj.tagSort);
-      if (this.filterObj.tagSort.length < this.tags.length) {
+      if (this.filterObj.verdictSort.length > 0) {
+        filtered = filtered.filter((row) =>
+          this.filterObj.verdictSort.includes(row.verdict)
+        );
+      }
+
+      if (this.filterObj.tagSort.length > 0) {
         filtered = filtered.filter((row) => {
-          for (let i = 0; i < row.tags.length; i++) {
-            if (!this.filterObj.tagSort.includes(row.tags[i])) {
+          const tagSort = this.filterObj.tagSort;
+          for (let i = 0; i < tagSort.length; i++) {
+            if (!row.tags.includes(tagSort[i])) {
               return false;
             }
           }
