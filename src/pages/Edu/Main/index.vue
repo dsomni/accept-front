@@ -14,7 +14,8 @@ q-page.q-pa-xl
     rows-per-page-label="На странице",
     :loading="false",
     loading-label="Подождите, задачи загружаются!",
-    no-results-label="Ничего не найдено"
+    no-results-label="Ничего не найдено",
+    binary-state-sort
   )
     template(v-slot:top-right)
       .flex.q-gutter-x-md
@@ -81,6 +82,7 @@ const columns = [
     required: true,
     label: "#",
     field: "index",
+    sortable: true,
     style: {
       fontSize: "1.1em",
     },
@@ -195,7 +197,7 @@ export default defineComponent({
     customFilter(rows) {
       let filtered = rows;
 
-console.log(this.filterObj.tagSort)
+      console.log(this.filterObj.tagSort);
       if (this.filterObj.tagSort.length < this.tags.length) {
         filtered = filtered.filter((row) => {
           for (let i = 0; i < row.tags.length; i++) {
