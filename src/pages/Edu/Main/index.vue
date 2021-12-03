@@ -3,11 +3,12 @@
 <template lang="pug">
 q-page.q-pa-xl
   q-table(
+    no-hover,
     :rows="rows",
     :columns="columns",
     row-key="name",
     :visible-columns="visibleColumns",
-    :rows-per-page-options="[10, 15, 20, 30, 0]",
+    :rows-per-page-options="[15, 30, 0]",
     :filter="filterObj",
     :filter-method="(rows, terms, cols) => customFilter(rows)",
     rows-per-page-label="На странице",
@@ -94,13 +95,27 @@ q-page.q-pa-xl
       q-tr(:props="props")
         q-th(v-for="col in props.cols", :key="col.name", :props="props")
           span.text-h6 {{ col.label }}
-    template(v-slot:body-cell-title="props")
-      q-td(style="max-width: 250px")
-        .flex.items-center.q-gutter-x-sm
-          .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem") {{ props.row.title }}
-          q-space
 
-          .text-grey-7(v-for="(tag, index) in props.row.tags", :key="index") {{ tag + (index == props.row.tags.length - 1 ? ' ' : ', ') }}
+    template(v-slot:body="props")
+      q-tr(no-hover, :props="props")
+        q-td(key="index", no-hover, :props="props") {{ props.row.index }}
+
+        q-td(key="title", no-hover, :props="props", style="max-width: 250px")
+          .flex.items-center.q-gutter-x-sm
+            .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem") {{ props.row.title }}
+            q-space
+
+            .text-grey-7(
+              style="font-size: 0.9em",
+              v-for="(tag, index) in props.row.tags",
+              :key="index"
+            ) {{ tag + (index == props.row.tags.length - 1 ? ' ' : ', ') }}
+
+        q-td(key="grade", no-hover, :props="props") {{ props.row.grade }}
+
+        q-td(key="verdict", no-hover, :props="props") {{ props.row.verdict }}
+
+        q-td(key="author", no-hover, :props="props") {{ props.row.author }}
 </template>
 
 
