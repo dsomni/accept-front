@@ -9,40 +9,52 @@ q-page.q-pa-xl
     row-key="name",
     :visible-columns="visibleColumns",
     :rows-per-page-options="[10, 15, 20, 30, 0]",
-    :filter="filter",
-    :filter-method="(rows, terms, cols) => fuzzySearch(rows)",
+    :filter="filterObj",
+    :filter-method="(rows, terms, cols) => customFilter(rows)",
     rows-per-page-label="На странице",
     :loading="false",
     loading-label="Подождите, задачи загружаются!",
     no-results-label="Ничего не найдено"
   )
-    template(v-slot:top-left)
-      //- .text-h4.col-2.q-table__title Задачи
-
-      q-select(
-        v-model="visibleColumns",
-        multiple,
-        outlined,
-        dense,
-        options-dense,
-        display-value="Поля",
-        emit-value,
-        map-options,
-        :options="columns.filter((item) => !item.required)",
-        option-value="name",
-        style="min-width: 150px"
-      )
-
     template(v-slot:top-right)
-      q-input(
-        borderless,
-        dense,
-        debounce="300",
-        v-model="filter",
-        placeholder="Поиск"
-      )
-        template(v-slot:append)
-          q-icon(name="search")
+      .flex.q-gutter-x-md
+        q-select(
+          v-model="visibleColumns",
+          multiple,
+          outlined,
+          dense,
+          options-dense,
+          display-value="Поля",
+          emit-value,
+          map-options,
+          :options="columns.filter((item) => !item.required)",
+          option-value="name",
+          style="min-width: 150px"
+        )
+
+        q-select(
+          v-model="filterObj.tagSort",
+          multiple,
+          outlined,
+          dense,
+          options-dense,
+          display-value="Теги",
+          emit-value,
+          map-options,
+          :options="tags",
+          option-value="name",
+          style="min-width: 150px"
+        )
+
+        q-input(
+          borderless,
+          dense,
+          debounce="300",
+          v-model="filterObj.titleSort",
+          placeholder="Поиск"
+        )
+          template(v-slot:append)
+            q-icon(name="search")
 
     template(v-slot:header="props")
       q-tr(:props="props")
@@ -123,7 +135,7 @@ for (let i = 1; i <= N; i++) {
     rows.push({
       index: i,
       title: "Simple Title",
-      tags: ["алгоритмы", "строки", "массивы", "алгоритм"],
+      tags: ["строки", "строки"],
       grade: 11,
       verdict: "OK",
       author: "Береснев Д.В.",
@@ -141,7 +153,14 @@ for (let i = 1; i <= N; i++) {
     rows.push({
       index: i,
       title: "Россия вперёд",
-      tags: ["алгоритмы", "строки", "массивы", "алгоритм", "массивы", "алгоритм"],
+      tags: [
+        "алгоритмы",
+        "строки",
+        "массивы",
+        "алгоритм",
+        "массивы",
+        "алгоритм",
+      ],
       grade: 10,
       verdict: "WA",
       author: "Лобачевский Д.В.",
@@ -149,14 +168,19 @@ for (let i = 1; i <= N; i++) {
   }
 }
 
+const tags = ["алгоритмы", "строки", "массивы"];
+
 export default defineComponent({
   name: "EduMain",
   components: {},
   setup() {
-    const filter = ref("");
+    const filterObj = ref({
+      titleSort: "",
+      tagSort: tags,
+    });
 
     return {
-      filter,
+      filterObj,
     };
   },
   data() {
@@ -164,19 +188,37 @@ export default defineComponent({
       visibleColumns: ref(["grade", "verdict", "author"]),
       columns,
       rows,
+      tags,
     };
   },
   methods: {
-    fuzzySearch(rows) {
-      const options = {
-        includeScore: true,
-        keys: ["title"],
-      };
+    customFilter(rows) {
+      let filtered = rows;
 
-      const fuse = new Fuse(rows, options);
-      return fuse.search(this.filter).map((row) => {
-        return row.item;
-      });
+console.log(this.filterObj.tagSort)
+      if (this.filterObj.tagSort.length < this.tags.length) {
+        filtered = filtered.filter((row) => {
+          for (let i = 0; i < row.tags.length; i++) {
+            if (!this.filterObj.tagSort.includes(row.tags[i])) {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+
+      if (this.filterObj.titleSort) {
+        const options = {
+          includeScore: true,
+          keys: ["title"],
+        };
+        const fuse = new Fuse(filtered, options);
+        filtered = fuse.search(this.filterObj.titleSort).map((row) => {
+          return row.item;
+        });
+      }
+
+      return filtered;
     },
   },
   mounted() {
