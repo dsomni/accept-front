@@ -6,7 +6,7 @@ import Registration from 'src/pages/Registration/index.vue';
 import TestBack from 'src/pages/TestBack/index.vue';
 
 import EduMain from 'src/pages/Edu/Main/index.vue';
-
+import EduAddTask from 'src/pages/Edu/AddTask/index.vue';
 
 const routes = [
   {
@@ -22,24 +22,25 @@ const routes = [
     path: '/form',
     component: LoginRegPageLayout,
     children: [
-      { path: 'login', component: LogIn},
-      { path: 'registration', component: Registration},
+      { path: 'login', component: LogIn },
+      { path: 'registration', component: Registration },
     ]
   },
 
   {
     path: '/edu',
     component: EduLayout,
-    meta:{requiresAuth: true},
+    meta: { requiresAuth: true },
     children: [
-      { path: '', component: EduMain},
+      { path: '', component: EduMain },
+      { path: 'tasks/add', component: EduAddTask },
     ]
   },
 
   {
     path: '/test-back',
     component: TestBack,
-    meta:{requiresAuth: true},
+    meta: { requiresAuth: true },
   },
 
   {
