@@ -127,6 +127,9 @@ q-page
           q-td(key="verdict", no-hover, :props="props") {{ props.row.verdict }}
 
           q-td(key="author", no-hover, :props="props") {{ props.row.author }}
+q-page-sticky(position="bottom-right" :offset="q.screen.gt.xs ? [36, 36] : [18, 18]")
+  q-btn(:fab="q.screen.gt.xs" fab-mini icon="add" color="primary" to="/edu/tasks/add")
+
 </template>
 
 
@@ -205,7 +208,7 @@ for (let i = 1; i <= N; i++) {
     rows.push({
       index: i,
       key: "b-b",
-      title: "Очень длинное названиеОчень длинное названиеОчень длинное название",
+      title: "Наверное, очень длинное название",
       tags: ["массивы"],
       grade: 7,
       verdict: "OK",
