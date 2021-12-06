@@ -102,7 +102,8 @@ q-page
 
         q-td(key="title", no-hover, :props="props", style="max-width: 250px")
           .flex.items-center.q-gutter-x-sm
-            .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem") {{ props.row.title }}
+            .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem")
+              a.title-ref(:href='"/#/edu/task/" + props.row.key') {{ props.row.title }}
             q-space
 
             .text-grey-7(
@@ -184,6 +185,7 @@ for (let i = 1; i <= N; i++) {
   if (i % 3 == 0) {
     rows.push({
       index: i,
+      key: "a",
       title: "Simple Title",
       tags: ["строки", "строки"],
       grade: 11,
@@ -193,6 +195,7 @@ for (let i = 1; i <= N; i++) {
   } else if (i % 3 == 1) {
     rows.push({
       index: i,
+      key: "b-b",
       title: "Очень длинное название",
       tags: ["массивы"],
       grade: 7,
@@ -202,6 +205,7 @@ for (let i = 1; i <= N; i++) {
   } else {
     rows.push({
       index: i,
+      key: "cccc",
       title: "Россия вперёд",
       tags: [
         "алгоритмы",
