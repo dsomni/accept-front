@@ -1,9 +1,16 @@
-
-
 a.common-ref{
   color: black;
   text-decoration: none;
 }
 a.common-ref:hover{
   text-decoration: none;
+}
+
+html::-webkit-scrollbar{
+  width: 0.5em;
+}
+
+
+html::-webkit-scrollbar-thumb{
+  background-color: darkgrey;
 }

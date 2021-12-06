@@ -2,126 +2,137 @@
 
 <template lang="pug">
 q-page
-  q-table.q-ma-lg.q-pa-lg(
-    bordered,
-    :rows="rows",
-    :columns="columns",
-    row-key="name",
-    :visible-columns="visibleColumns",
-    :rows-per-page-options="[15, 30, 0]",
-    :filter="filterObj",
-    :filter-method="(rows, terms, cols) => customFilter(rows)",
-    rows-per-page-label="На странице",
-    :loading="false",
-    loading-label="Подождите, задачи загружаются!",
-    no-results-label="Ничего не найдено",
-    binary-state-sort
-  )
-    template(v-slot:top-left)
-      q-select(
-        v-model="visibleColumns",
-        multiple,
-        outlined,
-        dense,
-        options-dense,
-        display-value="Поля",
-        emit-value,
-        map-options,
-        :options="columns.filter((item) => !item.required)",
-        option-value="name",
-        style="min-width: 150px"
-      )
+  .table-container
+    q-table.simple-table(
+      bordered,
+      wrap-cells,
+      :rows="rows",
+      :columns="columns",
+      row-key="name",
+      :visible-columns="visibleColumns",
+      :filter="filterObj",
+      :filter-method="(rows, terms, cols) => customFilter(rows)",
+      :rows-per-page-options="[15, 30, 0]",
+      rows-per-page-label="На странице",
+      :loading="false",
+      loading-label="Подождите, задачи загружаются!",
+      no-results-label="Ничего не найдено",
 
-    template(v-slot:top-right)
-      .flex.q-gutter-x-md
-        q-select(
-          v-model="filterObj.verdictSort",
-          transition-show="jump-up",
-          transition-hide="jump-up",
-          multiple,
-          outlined,
-          dense,
-          options-dense,
-          display-value="Вердикты",
-          emit-value,
-          :use-chips="filterObj.verdictSort.length > 0",
-          map-options,
-          :options="verdicts",
-          option-value="name",
-          style="min-width: 150px"
-        )
-          template(v-if="filterObj.verdictSort.length > 0", v-slot:append)
-            q-icon.cursor-pointer(
-              name="clear",
-              color="primary",
-              @click.stop="filterObj.verdictSort = []"
+    )
+      template(v-slot:top)
+        div(
+          style="width:100%"
+        ).row.justify-between.q-gutter-y-md
+          q-select.q-mr-md(
+            v-model="visibleColumns",
+            multiple,
+            outlined,
+            dense,
+            options-dense,
+            display-value="Поля",
+            emit-value,
+            map-options,
+            :options="columns.filter((item) => !item.required)",
+            option-value="name",
+            style="min-width: 150px; font-size: 1em"
+          )
+
+          .row.q-gutter-x-md
+            q-select.q-mb-sm(
+              v-model="filterObj.verdictSort",
+              transition-show="jump-up",
+              transition-hide="jump-up",
+              multiple,
+              outlined,
+              dense,
+              options-dense,
+              display-value="Вердикты",
+              emit-value,
+              :use-chips="filterObj.verdictSort.length > 0",
+              map-options,
+              :options="verdicts",
+              option-value="name",
+              style="min-width: 150px; font-size: 1em"
             )
+              template(v-if="filterObj.verdictSort.length > 0", v-slot:append)
+                q-icon.cursor-pointer(
+                  name="clear",
+                  color="primary",
+                  @click.stop="filterObj.verdictSort = []"
+                )
 
-        q-select(
-          v-model="filterObj.tagSort",
-          transition-show="jump-up",
-          transition-hide="jump-up",
-          multiple,
-          outlined,
-          dense,
-          options-dense,
-          display-value="Теги",
-          emit-value,
-          :use-chips="filterObj.tagSort.length > 0",
-          map-options,
-          virtual-scroll-slice-size="2",
-          :options="tags",
-          option-value="name",
-          style="min-width: 150px; max-width: 350px"
-        )
-          template(v-if="filterObj.tagSort.length > 0", v-slot:append)
-            q-icon.cursor-pointer(
-              name="clear",
-              color="primary",
-              @click.stop="filterObj.tagSort = []"
+            q-select.q-mb-sm(
+              v-model="filterObj.tagSort",
+              transition-show="jump-up",
+              transition-hide="jump-up",
+              multiple,
+              outlined,
+              dense,
+              options-dense,
+              display-value="Теги",
+              emit-value,
+              :use-chips="filterObj.tagSort.length > 0",
+              map-options,
+              virtual-scroll-slice-size="2",
+              :options="tags",
+              option-value="name",
+              style="min-width: 150px; max-width: 350px; font-size: 1em"
             )
+              template(v-if="filterObj.tagSort.length > 0", v-slot:append)
+                q-icon.cursor-pointer(
+                  name="clear",
+                  color="primary",
+                  @click.stop="filterObj.tagSort = []"
+                )
 
-        q-input.text-subtitle1(
-          borderless,
-          dense,
-          debounce="300",
-          v-model="filterObj.titleSort",
-          placeholder="Поиск"
-        )
-          template(v-slot:append)
-            q-icon(name="search")
+            q-input.q-mb-sm.q-pa-sm(
+              borderless,
+              dense,
+              debounce="300",
+              v-model="filterObj.titleSort",
+              placeholder="Поиск"
+              style="font-size: 1em"
+            )
+              template(v-slot:append)
+                q-icon(name="search")
 
-    template(v-slot:header="props")
-      q-tr(:props="props")
-        q-th(v-for="col in props.cols", :key="col.name", :props="props")
-          span.text-h6 {{ col.label }}
+      template(v-slot:header="props")
+        q-tr(:props="props")
+          q-th(
+            v-for="col in props.cols",
+            :key="col.name",
+            :props="props",
+            style="white-space: nowrap"
+          )
+            span(style="font-size: 1.5em") {{ col.label }}
 
-    template(v-slot:body="props")
-      q-tr(no-hover, :props="props")
-        q-td(key="index", no-hover, :props="props") {{ props.row.index }}
+      template(v-slot:body="props")
+        q-tr(no-hover, :props="props")
+          q-td(key="index", no-hover, :props="props") {{ props.row.index }}
 
-        q-td(key="title", no-hover, :props="props", style="max-width: 250px")
-          .flex.items-center.q-gutter-x-sm
-            .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3rem")
-              a.title-ref(:href='"/#/edu/task/" + props.row.key') {{ props.row.title }}
-            q-space
+          q-td(key="title", no-hover, :props="props", style="max-width: 250px")
+            .flex.items-center.q-gutter-x-sm
+              .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3em")
+                a.title-ref(:href="'/#/edu/task/' + props.row.key") {{ props.row.title }}
+              q-space
 
-            .text-grey-7(
-              style="font-size: 0.9em",
-              v-for="(tag, index) in props.row.tags",
-              :key="index"
-            ) {{ tag + (index == props.row.tags.length - 1 ? ' ' : ', ') }}
+              .text-grey-7(
+                style="font-size: 0.9em",
+                v-for="(tag, index) in props.row.tags",
+                :key="index"
+              ) {{ tag + (index == props.row.tags.length - 1 ? ' ' : ', ') }}
 
-        q-td(key="grade", no-hover, :props="props") {{ props.row.grade }}
+          q-td(key="grade", no-hover, :props="props") {{ props.row.grade }}
 
-        q-td(key="verdict", no-hover, :props="props") {{ props.row.verdict }}
+          q-td(key="verdict", no-hover, :props="props") {{ props.row.verdict }}
 
-        q-td(key="author", no-hover, :props="props") {{ props.row.author }}
+          q-td(key="author", no-hover, :props="props") {{ props.row.author }}
 </template>
 
 
 <script>
 import { defineComponent, ref } from "vue";
+import { useQuasar } from "quasar";
 import Fuse from "fuse.js";
 
 const columns = [
@@ -133,7 +144,7 @@ const columns = [
     field: "index",
     sortable: true,
     style: {
-      fontSize: "1.1em",
+      width: "2em",
     },
   },
   {
@@ -143,9 +154,7 @@ const columns = [
     align: "left",
     field: "title",
     sortable: true,
-    style: {
-      fontSize: "1.1em",
-    },
+    style: {},
   },
   {
     name: "grade",
@@ -154,7 +163,7 @@ const columns = [
     field: "grade",
     sortable: true,
     style: {
-      fontSize: "1.1em",
+      width: "6em",
     },
   },
   {
@@ -163,7 +172,7 @@ const columns = [
     label: "Вердикт",
     field: "verdict",
     style: {
-      fontSize: "1.1em",
+      width: "7em",
     },
   },
   {
@@ -172,7 +181,7 @@ const columns = [
     label: "Автор",
     field: "author",
     style: {
-      fontSize: "1.1em",
+      width: "16em",
     },
   },
 ];
@@ -196,7 +205,7 @@ for (let i = 1; i <= N; i++) {
     rows.push({
       index: i,
       key: "b-b",
-      title: "Очень длинное название",
+      title: "Очень длинное названиеОчень длинное названиеОчень длинное название",
       tags: ["массивы"],
       grade: 7,
       verdict: "OK",
@@ -234,6 +243,8 @@ const tags = [
 ];
 const verdicts = ["WA", "OK"];
 
+const limitTableWidth = 600;
+
 export default defineComponent({
   name: "EduMain",
   components: {},
@@ -244,20 +255,32 @@ export default defineComponent({
       verdictSort: [],
     });
 
+    const q = useQuasar();
+    let visibleColumns = ref(["grade", "verdict", "author"]);
+
+    let shouldShrinkTable = ref(false);
+    if (q.screen.lt.sm) {
+      visibleColumns.value = [];
+    }
+
     return {
+      q,
       filterObj,
+      shouldShrinkTable,
+      visibleColumns,
     };
   },
   data() {
     return {
-      visibleColumns: ref(["grade", "verdict", "author"]),
       columns,
       rows,
       tags,
       verdicts,
+      limitTableWidth,
     };
   },
   methods: {
+
     customFilter(rows) {
       let filtered = rows;
 
