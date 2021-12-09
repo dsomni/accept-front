@@ -1,7 +1,8 @@
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 
-const api = axios.create({ baseURL: 'http://localhost:8000' })
+const CONFIGS = require('../../configs.js');
+const api = axios.create({ baseURL: CONFIGS.serverURL })
 
 // Enable cookies for JWT Authorization
 api.defaults.withCredentials = true
