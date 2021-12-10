@@ -11,7 +11,7 @@ q-page
 import { defineComponent, ref, reactive } from "vue";
 import { useQuasar } from "quasar";
 import CKEditor from "@ckeditor/ckeditor5-vue";
-import CustomEditor from "ckeditor5-custom-build/build/ckeditor";
+import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
 
 const CONFIGS = require('../../../../configs.js');
 
