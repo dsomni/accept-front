@@ -17,7 +17,6 @@ q-page
       .editor-container
         q-input.line-input(
           label="Название",
-          autofocus,
           outline,
           counter,
           autogrow,
@@ -27,32 +26,65 @@ q-page
           :error="!!validator.taskForm.title.$error"
         )
 
-        q-select.line-input(
-              v-model="tags",
-              transition-show="jump-up",
-              transition-hide="jump-up",
-              multiple,
-              outlined,
-              dense,
-              options-dense,
-              display-value="Теги",
-              emit-value,
-              map-options,
-              virtual-scroll-slice-size="2",
-              :options="tags",
-              option-value="name",
+        .tags-editor-container
+          template(v-for="(tag, index) in taskForm.tags", :key="index")
+            q-chip(
+              outline,
+              color="primary",
+              text-color="white",
+              :label="tag",
+              removable,
+              @remove="taskForm.tags.splice(index, 1)"
+            )
+
+        .selector-container.row.q-col-gutter-sm.fit
+          q-select.col(
+            counter,
+            use-input,
+            v-model="taskForm.tags",
+            transition-show="jump-up",
+            transition-hide="jump-up",
+            multiple,
+            outlined,
+            display-value="Теги",
+            emit-value,
+            map-options,
+            virtual-scroll-slice-size="2",
+            :options="tagOptions",
+            option-value="name",
+            @filter="tagFilter",
+            input-debounce="300",
+            dense
           )
+            template(v-if="taskForm.tags.length > 0", v-slot:append)
+                q-icon.cursor-pointer(
+                  name="clear",
+                  color="primary",
+                  @click.stop="taskForm.tags = []"
+                )
+          .col-1
+            q-btn(round, flat, color="white", text-color="primary", icon="add")
         //- ckeditor(:editor="editor", v-model="editorData", :config="editorConfig")
 
     q-tab-panel(name="preview")
       .preview-container
         .title {{ taskForm.title }}
+        .tags
+          template(v-for="(tag, index) in taskForm.tags", :key="index")
+            q-chip(
+              outline,
+              color="black",
+              text-color="white",
+              :label="tag",
+              :clickable="false"
+            )
 </template>
 
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
+import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
 
@@ -96,13 +128,14 @@ export default defineComponent({
       // tab: ref("preview"),
 
       tags,
+      tagOptions: ref(tags),
     };
   },
   data() {
     return {
       taskForm: {
         title: "Название Задачи",
-        tags: [],
+        tags: ["алгоритмы", "строки", "массивы"],
         grade: "",
         description: "",
         author: "",
@@ -128,9 +161,33 @@ export default defineComponent({
     };
   },
   methods: {
+    tagFilter(val, update) {
+      update(() => {
+        if (val === "") {
+          this.tagOptions = this.tags;
+        } else {
+          const options = {
+            includeScore: true,
+          };
+          const fuse = new Fuse(this.tags, options);
+          this.tagOptions = fuse.search(val.toLowerCase()).map((obj) => {
+            return obj.item;
+          });
+        }
+      });
+    },
+
     validateDefaultSymbols(content) {
       const validContentRegExp =
         /^[0-9a-zA-ZА-ЯЁа-яё!@#$%^*()-="№:?_+.,<>~\\` ]+$/;
+      if (validContentRegExp.test(content)) {
+        return true;
+      }
+      return false;
+    },
+
+    validateTitleSymbols(content) {
+      const validContentRegExp = /^[0-9a-zA-ZА-ЯЁа-яё!*()-="№:?+.,<>` ]+$/;
       if (validContentRegExp.test(content)) {
         return true;
       }
@@ -159,7 +216,7 @@ export default defineComponent({
           required,
           maxLength: maxLength(255),
           minLength: minLength(1),
-          regExpValidation: this.validateDefaultSymbols,
+          regExpValidation: this.validateTitleSymbols,
           // isUnique: helpers.withAsync(this.validateTitleUniqueness),
         },
         grade: {
