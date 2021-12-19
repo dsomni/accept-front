@@ -56,12 +56,35 @@ q-page
             input-debounce="300",
             dense
           )
-            template(v-if="taskForm.tags.length > 0", v-slot:append)
-                q-icon.cursor-pointer(
-                  name="clear",
-                  color="primary",
-                  @click.stop="taskForm.tags = []"
-                )
+            //- template(v-if="taskForm.tags.length > 0", v-slot:append)
+            //-   q-icon.cursor-pointer(
+            //-     name="clear",
+            //-     color="primary",
+            //-     @click.stop="taskForm.tags = []"
+            //-   )
+            template(v-slot:option="scope")
+              .row.q-gutter-x-xs
+                q-item.col.wrap(v-bind="scope.itemProps")
+                  q-item-section
+                    q-item-label {{ scope.label }}
+                  //- q-item-section(top, side)
+                .row.items-center.q-pa-xs
+                  q-btn(
+                    size="0.7em",
+                    color="primary",
+                    flat,
+                    round,
+                    icon="edit",
+                    @click="() => {}"
+                  )
+                  q-btn(
+                    size="0.7em",
+                    color="negative",
+                    flat,
+                    round,
+                    icon="delete"
+                  )
+
           .col-1
             q-btn(round, flat, color="white", text-color="primary", icon="add")
         //- ckeditor(:editor="editor", v-model="editorData", :config="editorConfig")
@@ -84,6 +107,7 @@ q-page
 <script>
 import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
+import { useStore } from "vuex";
 import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
@@ -102,26 +126,36 @@ const CONFIGS = require("../../../../configs.js");
 
 const limitWidth = 600;
 
-const tags = [
-  "алгоритмы",
-  "строки",
-  "массивы",
-  "qwer",
-  "qwert",
-  "qwerty",
-  "qwertyu",
-  "qwertyui",
-];
+// const tags = [
+//   "алгоритмы",
+//   "строки",
+//   "массивы",
+//   "qwer",
+//   "qwert",
+//   "qwerty",
+//   "qwertyu",
+//   "qwertyui",
+// ];
 
 export default defineComponent({
   name: "EduAddTask",
   components: { ckeditor: CKEditor.component },
-  mounted() {
+  async mounted() {
     document.title = "Добавить задачу";
+    let response = await this.store.dispatch("tags/getAllTags");
+    if (response.status == 200) {
+      this.tags = response.data.map((item) => {return item.title;});
+    }
   },
   setup() {
     const validator = useVuelidate();
+    const store = useStore();
+
+    let tags = [];
+
     return {
+      store,
+
       validator,
 
       tab: ref("editor"),
@@ -187,7 +221,7 @@ export default defineComponent({
     },
 
     validateTitleSymbols(content) {
-      const validContentRegExp = /^[0-9a-zA-ZА-ЯЁа-яё!*()-="№:?+.,<>` ]+$/;
+      const validContentRegExp = /^[0-9a-zA-ZА-ЯЁа-яё!*()-='№:?+.,<>` ]+$/;
       if (validContentRegExp.test(content)) {
         return true;
       }
