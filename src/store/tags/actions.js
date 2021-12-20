@@ -46,3 +46,26 @@ export async function getAllTags({ dispatch }) {
   return response;
 }
 
+export async function addTag({ dispatch }, tag) {
+  let response = null;
+  await api
+    .post('api/tag', tag)
+    .then(async (res) => {
+      response = {
+        status: res.status,
+        statusText: res.statusText,
+      };
+    })
+    .catch((error) => {
+      if (error.response) {
+        response = {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          detail: error.response.data.detail
+        };
+      }
+    });
+
+  return response;
+}
+

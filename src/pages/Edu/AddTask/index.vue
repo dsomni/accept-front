@@ -2,6 +2,32 @@
 
 <template lang="pug">
 q-page
+  q-dialog(v-model="openAddTagDialog")
+    q-card.q-pa-sm.add-tag-dialog.dialog
+      q-card-section.row.items-center
+        .dialog-title Добавить Тег
+        q-space
+        q-btn(icon="close", flat, color="primary", round, dense, v-close-popup)
+
+      q-card-section.q-pt-none
+        q-input(
+          label="Название",
+          outline,
+          autofocus,
+          v-model="validator.addTagDialog.title.$model",
+          @blur="validator.addTagDialog.title.$touch",
+          :error-message="errorMsgTagTitle()",
+          :error="!!validator.addTagDialog.title.$error"
+        )
+
+      q-card-actions(align="right")
+        q-btn(
+          flat,
+          label="Добавить",
+          color="primary",
+          :disable="!!validator.addTagDialog.$invalid",
+          @click="addTag"
+        )
   q-tabs.q-ma-sm.bg-white(
     v-model="tab",
     active-color="primary",
@@ -56,18 +82,11 @@ q-page
             input-debounce="300",
             dense
           )
-            //- template(v-if="taskForm.tags.length > 0", v-slot:append)
-            //-   q-icon.cursor-pointer(
-            //-     name="clear",
-            //-     color="primary",
-            //-     @click.stop="taskForm.tags = []"
-            //-   )
             template(v-slot:option="scope")
               .row.q-gutter-x-xs
                 q-item.col.wrap(v-bind="scope.itemProps")
                   q-item-section
                     q-item-label {{ scope.label }}
-                  //- q-item-section(top, side)
                 .row.items-center.q-pa-xs
                   q-btn(
                     size="0.7em",
@@ -86,7 +105,14 @@ q-page
                   )
 
           .col-1
-            q-btn(round, flat, color="white", text-color="primary", icon="add")
+            q-btn(
+              round,
+              flat,
+              color="white",
+              text-color="primary",
+              icon="add",
+              @click="openAddTagDialog = true"
+            )
         //- ckeditor(:editor="editor", v-model="editorData", :config="editorConfig")
 
     q-tab-panel(name="preview")
@@ -142,20 +168,18 @@ export default defineComponent({
   components: { ckeditor: CKEditor.component },
   async mounted() {
     document.title = "Добавить задачу";
-    let response = await this.store.dispatch("tags/getAllTags");
-    if (response.status == 200) {
-      this.tags = response.data.map((item) => {return item.title;});
-    }
+    await this.loadTags();
   },
   setup() {
     const validator = useVuelidate();
     const store = useStore();
+    const q = useQuasar();
 
     let tags = [];
 
     return {
+      q,
       store,
-
       validator,
 
       tab: ref("editor"),
@@ -163,10 +187,15 @@ export default defineComponent({
 
       tags,
       tagOptions: ref(tags),
+
+      openAddTagDialog: ref(true),
     };
   },
   data() {
     return {
+      addTagDialog: {
+        title: "",
+      },
       taskForm: {
         title: "Название Задачи",
         tags: ["алгоритмы", "строки", "массивы"],
@@ -195,6 +224,17 @@ export default defineComponent({
     };
   },
   methods: {
+    async loadTags() {
+      let response = await this.store.dispatch("tags/getAllTags");
+      if (response.status == 200) {
+        this.tags = response.data
+          .map((item) => {
+            return item.title;
+          })
+          .sort();
+      }
+    },
+
     tagFilter(val, update) {
       update(() => {
         if (val === "") {
@@ -228,6 +268,21 @@ export default defineComponent({
       return false;
     },
 
+    validateTagTitleSymbols(content) {
+      const validContentRegExp = /^[0-9a-zA-ZА-ЯЁа-яё ]+$/;
+      if (validContentRegExp.test(content)) {
+        return true;
+      }
+      return false;
+    },
+    validateTagUniqueness(tag) {
+      return !this.tags
+        .map((item) => {
+          return item.toLowerCase();
+        })
+        .includes(tag.toLowerCase());
+    },
+
     errorMsgTitle() {
       if (this.validator.taskForm.title.required.$invalid) {
         return `Пожалуйста, заполните поле`;
@@ -242,9 +297,61 @@ export default defineComponent({
       //   return `Такой логин уже занят`;
       // }
     },
+
+    errorMsgTagTitle() {
+      if (this.validator.addTagDialog.title.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.addTagDialog.title.minLength.$invalid) {
+        return `Тег должен быть не короче ${this.validator.addTagDialog.title.minLength.$params.min} символов`;
+      }
+      if (this.validator.addTagDialog.title.maxLength.$invalid) {
+        return `Тег должен быть не длиннее ${this.validator.addTagDialog.title.maxLength.$params.max} символов`;
+      }
+      if (this.validator.addTagDialog.title.regExpValidation.$invalid) {
+        return `Используются недопустимые символы`;
+      }
+      if (this.validator.addTagDialog.title.uniquenessValidation.$invalid) {
+        return `Похожий тег уже существует`;
+      }
+    },
+
+    async addTag() {
+      const Tag = {
+        title: this.addTagDialog.title,
+      };
+      const response = await this.store.dispatch("tags/addTag", Tag);
+      if (response.status == 200) {
+        this.q.notify({
+          color: "green-4",
+          textColor: "white",
+          message: "Тег успешно добавлен",
+        });
+        await this.loadTags();
+      } else {
+        this.q.notify({
+          type: "negative",
+          message:
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
+            `${response.status}: ${response.statusText}`,
+          timeout: 8000,
+        });
+      }
+    },
   },
   validations() {
     return {
+      addTagDialog: {
+        title: {
+          required,
+          maxLength: maxLength(64),
+          minLength: minLength(3),
+          regExpValidation: this.validateTagTitleSymbols,
+          uniquenessValidation: this.validateTagUniqueness,
+        },
+      },
+
       taskForm: {
         title: {
           required,
