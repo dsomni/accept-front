@@ -58,13 +58,14 @@ q-page
               outline,
               color="primary",
               text-color="white",
-              :label="tag",
+              :label="tag.title",
               removable,
               @remove="taskForm.tags.splice(index, 1)"
             )
 
         .selector-container.row.q-col-gutter-sm.fit
           q-select.col(
+            ref="TagSelector",
             counter,
             use-input,
             v-model="taskForm.tags",
@@ -74,10 +75,8 @@ q-page
             outlined,
             display-value="Теги",
             emit-value,
-            map-options,
-            virtual-scroll-slice-size="2",
             :options="tagOptions",
-            option-value="name",
+            virtual-scroll-slice-size="2",
             @filter="tagFilter",
             input-debounce="300",
             dense
@@ -86,7 +85,7 @@ q-page
               .row.q-gutter-x-xs
                 q-item.col.wrap(v-bind="scope.itemProps")
                   q-item-section
-                    q-item-label {{ scope.label }}
+                    q-item-label {{ scope.opt.title }}
                 .row.items-center.q-pa-xs
                   q-btn(
                     size="0.7em",
@@ -101,7 +100,8 @@ q-page
                     color="negative",
                     flat,
                     round,
-                    icon="delete"
+                    icon="delete",
+                    @click="confirmTagRemovalDialog(scope.label)"
                   )
 
           .col-1
@@ -124,7 +124,7 @@ q-page
               outline,
               color="black",
               text-color="white",
-              :label="tag",
+              :label="tag.title",
               :clickable="false"
             )
 </template>
@@ -175,7 +175,8 @@ export default defineComponent({
     const store = useStore();
     const q = useQuasar();
 
-    let tags = [];
+    let tags = ref([]);
+    let tagOptions = ref([]);
 
     return {
       q,
@@ -186,19 +187,19 @@ export default defineComponent({
       // tab: ref("preview"),
 
       tags,
-      tagOptions: ref(tags),
+      tagOptions,
 
-      openAddTagDialog: ref(true),
+      openAddTagDialog: ref(false),
     };
   },
   data() {
     return {
-      addTagDialog: {
+      addTagDialog: ref({
         title: "",
-      },
-      taskForm: {
+      }),
+      taskForm: ref({
         title: "Название Задачи",
-        tags: ["алгоритмы", "строки", "массивы"],
+        tags: [],
         grade: "",
         description: "",
         author: "",
@@ -211,7 +212,7 @@ export default defineComponent({
           timerType: "",
           timer: "",
         },
-      },
+      }),
 
       editor: CustomEditor,
       editorConfig: {
@@ -227,12 +228,35 @@ export default defineComponent({
     async loadTags() {
       let response = await this.store.dispatch("tags/getAllTags");
       if (response.status == 200) {
-        this.tags = response.data
-          .map((item) => {
-            return item.title;
-          })
-          .sort();
+        this.tags = response.data.sort((a, b) =>
+          a.title > b.title ? 1 : b.title > a.title ? -1 : 0
+        );
       }
+    },
+
+    async confirmTagRemovalDialog(tag) {
+      this.q
+        .dialog({
+          title: `Вы действительно хотите удалить тег "${tag.title}"?`,
+          cancel: true,
+          class: "dialog-stye",
+          focus: "cancel",
+          ok: {
+            label: "Да",
+            flat: true,
+            color: "primary",
+          },
+          cancel: {
+            label: "Отмена",
+            flat: true,
+            color: "negative",
+          },
+        })
+        .onOk(async () => {
+          this.$refs.TagSelector.hidePopup();
+          await this.deleteTag(tag);
+        })
+        .onCancel(() => {});
     },
 
     tagFilter(val, update) {
@@ -242,6 +266,7 @@ export default defineComponent({
         } else {
           const options = {
             includeScore: true,
+            keys: ["title"],
           };
           const fuse = new Fuse(this.tags, options);
           this.tagOptions = fuse.search(val.toLowerCase()).map((obj) => {
@@ -275,12 +300,12 @@ export default defineComponent({
       }
       return false;
     },
-    validateTagUniqueness(tag) {
+    validateTagTitleUniqueness(title) {
       return !this.tags
         .map((item) => {
-          return item.toLowerCase();
+          return item.title.toLowerCase();
         })
-        .includes(tag.toLowerCase());
+        .includes(title.toLowerCase());
     },
 
     errorMsgTitle() {
@@ -339,6 +364,51 @@ export default defineComponent({
         });
       }
     },
+
+    async updateTag() {
+      const Tag = {
+        title: this.addTagDialog.title,
+      };
+      const response = await this.store.dispatch("tags/addTag", Tag);
+      if (response.status == 200) {
+        this.q.notify({
+          color: "green-4",
+          textColor: "white",
+          message: "Тег успешно добавлен",
+        });
+        await this.loadTags();
+      } else {
+        this.q.notify({
+          type: "negative",
+          message:
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
+            `${response.status}: ${response.statusText}`,
+          timeout: 8000,
+        });
+      }
+    },
+
+    async deleteTag(tag) {
+      const response = await this.store.dispatch("tags/deleteTag", tag);
+      if (response.status == 200) {
+        this.q.notify({
+          color: "green-4",
+          textColor: "white",
+          message: "Тег успешно удалён",
+        });
+        await this.loadTags();
+      } else {
+        this.q.notify({
+          type: "negative",
+          message:
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
+            `${response.status}: ${response.statusText}`,
+          timeout: 8000,
+        });
+      }
+    },
   },
   validations() {
     return {
@@ -348,7 +418,7 @@ export default defineComponent({
           maxLength: maxLength(64),
           minLength: minLength(3),
           regExpValidation: this.validateTagTitleSymbols,
-          uniquenessValidation: this.validateTagUniqueness,
+          uniquenessValidation: this.validateTagTitleUniqueness,
         },
       },
 
