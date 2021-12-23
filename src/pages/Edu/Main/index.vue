@@ -16,13 +16,10 @@ q-page
       rows-per-page-label="На странице",
       :loading="false",
       loading-label="Подождите, задачи загружаются!",
-      no-results-label="Ничего не найдено",
-
+      no-results-label="Ничего не найдено"
     )
       template(v-slot:top)
-        div(
-          style="width:100%"
-        ).row.justify-between.q-gutter-y-md
+        .row.justify-between.q-gutter-y-md(style="width: 100%")
           q-select.q-mr-md(
             v-model="visibleColumns",
             multiple,
@@ -75,7 +72,7 @@ q-page
               map-options,
               virtual-scroll-slice-size="2",
               :options="tags",
-              option-value="name",
+              option-label="title",
               style="min-width: 150px; max-width: 350px; font-size: 1em"
             )
               template(v-if="filterObj.tagSort.length > 0", v-slot:append)
@@ -85,13 +82,13 @@ q-page
                   @click.stop="filterObj.tagSort = []"
                 )
 
-            q-input.q-mb-sm.q-pa-sm(
+            q-input.q-mb-sm(
               borderless,
               dense,
               debounce="300",
               v-model="filterObj.titleSort",
-              placeholder="Поиск"
-              style="font-size: 1em"
+              placeholder="Поиск",
+              style="font-size: 1em;"
             )
               template(v-slot:append)
                 q-icon(name="search")
@@ -112,7 +109,9 @@ q-page
 
           q-td(key="title", no-hover, :props="props", style="max-width: 250px")
             .flex.items-center.q-gutter-x-sm
-              .text-primary.text-weight-medium.q-mr-lg(style="font-size: 1.3em")
+              .text-primary.text-weight-medium.q-mr-lg(
+                style="font-size: 1.3em"
+              )
                 a.title-ref(:href="'/#/edu/task/' + props.row.key") {{ props.row.title }}
               q-space
 
@@ -127,15 +126,24 @@ q-page
           q-td(key="verdict", no-hover, :props="props") {{ props.row.verdict }}
 
           q-td(key="author", no-hover, :props="props") {{ props.row.author }}
-q-page-sticky(position="bottom-right" :offset="q.screen.gt.xs ? [36, 36] : [18, 18]")
-  q-btn(:fab="q.screen.gt.xs" fab-mini icon="add" color="primary" to="/edu/tasks/add")
-
+q-page-sticky(
+  position="bottom-right",
+  :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+)
+  q-btn(
+    :fab="q.screen.gt.xs",
+    fab-mini,
+    icon="add",
+    color="primary",
+    to="/edu/tasks/add"
+  )
 </template>
 
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
+import { useStore } from "vuex";
 import Fuse from "fuse.js";
 
 const columns = [
@@ -234,16 +242,6 @@ for (let i = 1; i <= N; i++) {
   }
 }
 
-const tags = [
-  "алгоритмы",
-  "строки",
-  "массивы",
-  "qwer",
-  "qwert",
-  "qwerty",
-  "qwertyu",
-  "qwertyui",
-];
 const verdicts = ["WA", "OK"];
 
 const limitTableWidth = 600;
@@ -259,15 +257,19 @@ export default defineComponent({
     });
 
     const q = useQuasar();
+    const store = useStore();
     let visibleColumns = ref(["grade", "verdict", "author"]);
 
     let shouldShrinkTable = ref(false);
     if (q.screen.lt.sm) {
       visibleColumns.value = [];
     }
+    let tags = ref([]);
 
     return {
       q,
+      tags,
+      store,
       filterObj,
       shouldShrinkTable,
       visibleColumns,
@@ -277,12 +279,19 @@ export default defineComponent({
     return {
       columns,
       rows,
-      tags,
       verdicts,
       limitTableWidth,
     };
   },
   methods: {
+    async loadTags() {
+      let response = await this.store.dispatch("tags/getAllTags");
+      if (response.status == 200) {
+        this.tags = response.data.sort((a, b) =>
+          a.title > b.title ? 1 : b.title > a.title ? -1 : 0
+        );
+      }
+    },
 
     customFilter(rows) {
       let filtered = rows;
@@ -297,7 +306,7 @@ export default defineComponent({
         filtered = filtered.filter((row) => {
           const tagSort = this.filterObj.tagSort;
           for (let i = 0; i < tagSort.length; i++) {
-            if (!row.tags.includes(tagSort[i])) {
+            if (!row.tags.includes(tagSort[i].title)) {
               return false;
             }
           }
@@ -319,8 +328,9 @@ export default defineComponent({
       return filtered;
     },
   },
-  mounted() {
+  async mounted() {
     document.title = "Accept | Edu";
+    await this.loadTags();
   },
 });
 </script>
