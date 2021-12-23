@@ -67,81 +67,85 @@ q-page
   q-separator
 
   q-tab-panels(v-model="tab")
-    q-tab-panel(name="editor")
-      .editor-container
-        q-input.line-input(
-          label="Название",
-          outline,
-          counter,
-          autogrow,
-          v-model="validator.taskForm.title.$model",
-          @blur="validator.taskForm.title.$touch",
-          :error-message="errorMsgTitle()",
-          :error="!!validator.taskForm.title.$error"
-        )
-
-        .tags-editor-container
-          template(v-for="(tag, index) in taskForm.tags", :key="index")
-            q-chip(
-              outline,
-              color="primary",
-              text-color="white",
-              :label="tag.title",
-              removable,
-              @remove="taskForm.tags.splice(index, 1)"
-            )
-
-        .selector-container.row.q-col-gutter-sm.fit
-          q-select.col(
-            ref="TagSelector",
+    q-tab-panel(name="editor" style="overflow: hidden")
+      .editor-container.q-gutter-xl(:class="{'row': (q.screen.width >= limitWidth)}")
+        .col
+          q-input.line-input(
+            label="Название",
+            outline,
             counter,
-            use-input,
-            v-model="taskForm.tags",
-            transition-show="jump-up",
-            transition-hide="jump-up",
-            multiple,
-            outlined,
-            display-value="Теги",
-            emit-value,
-            :options="tagOptions",
-            virtual-scroll-slice-size="2",
-            @filter="tagFilter",
-            input-debounce="300",
-            dense
+            autogrow,
+            v-model="validator.taskForm.title.$model",
+            @blur="validator.taskForm.title.$touch",
+            :error-message="errorMsgTitle()",
+            :error="!!validator.taskForm.title.$error"
           )
-            template(v-slot:option="scope")
-              .row.q-gutter-x-xs
-                q-item.col.wrap(v-bind="scope.itemProps")
-                  q-item-section
-                    q-item-label {{ scope.opt.title }}
-                .row.items-center.q-pa-xs
-                  q-btn(
-                    size="0.7em",
-                    color="primary",
-                    flat,
-                    round,
-                    icon="edit",
-                    @click="() => { setupEditTagDialog(scope.opt); openEditTagDialog = true; }"
-                  )
-                  q-btn(
-                    size="0.7em",
-                    color="negative",
-                    flat,
-                    round,
-                    icon="delete",
-                    @click="confirmTagRemovalDialog(scope.label)"
-                  )
 
-          .col-1
-            q-btn(
-              round,
-              flat,
-              color="white",
-              text-color="primary",
-              icon="add",
-              @click="openAddTagDialog = true"
+          .tags-editor-container
+            template(v-for="(tag, index) in taskForm.tags", :key="index")
+              q-chip(
+                outline,
+                color="primary",
+                text-color="white",
+                :label="tag.title",
+                removable,
+                @remove="taskForm.tags.splice(index, 1)"
+              )
+
+          .selector-container.row.q-col-gutter-sm.fit
+            q-select.col(
+              ref="TagSelector",
+              counter,
+              use-input,
+              v-model="taskForm.tags",
+              transition-show="jump-up",
+              transition-hide="jump-up",
+              multiple,
+              outlined,
+              display-value="Теги",
+              emit-value,
+              :options="tagOptions",
+              virtual-scroll-slice-size="2",
+              @filter="tagFilter",
+              input-debounce="300",
+              dense
             )
-        //- ckeditor(:editor="editor", v-model="editorData", :config="editorConfig")
+              template(v-slot:option="scope")
+                .row.q-gutter-x-xs
+                  q-item.col.wrap(v-bind="scope.itemProps")
+                    q-item-section
+                      q-item-label {{ scope.opt.title }}
+                  .row.items-center.q-pa-xs
+                    q-btn(
+                      size="0.7em",
+                      color="primary",
+                      flat,
+                      round,
+                      icon="edit",
+                      @click="() => { setupEditTagDialog(scope.opt); openEditTagDialog = true; }"
+                    )
+                    q-btn(
+                      size="0.7em",
+                      color="negative",
+                      flat,
+                      round,
+                      icon="delete",
+                      @click="confirmTagRemovalDialog(scope.label)"
+                    )
+
+            .col-1
+              q-btn(
+                round,
+                flat,
+                color="white",
+                text-color="primary",
+                icon="add",
+                @click="openAddTagDialog = true"
+              )
+        .col-7
+          .description-container
+            .field-title Описание
+            ckeditor.description-editor(:editor="editor", v-model="taskForm.description", :config="editorConfig")
 
     q-tab-panel(name="preview")
       .preview-container
@@ -155,6 +159,7 @@ q-page
               :label="tag.title",
               :clickable="false"
             )
+        .description(v-html="taskForm.description")
 </template>
 
 
@@ -178,7 +183,7 @@ import {
 
 const CONFIGS = require("../../../../configs.js");
 
-const limitWidth = 600;
+const limitWidth = 900;
 
 export default defineComponent({
   name: "EduAddTask",
@@ -196,6 +201,9 @@ export default defineComponent({
     let tagOptions = ref([]);
 
     return {
+      limitWidth,
+
+
       q,
       store,
       validator,
@@ -222,9 +230,9 @@ export default defineComponent({
       }),
       taskForm: ref({
         title: "Название Задачи",
-        tags: [],
+        tags:[{title: "Заглушка1"},{title: "Заглушка2"},{title: "Заглушка3"}],
         grade: "",
-        description: "",
+        description: `<p>${'safdsfdsfs '.repeat(100)}</p><p>${'safdsfdsfssafdsfdsfs '.repeat(30)}</p>`,
         author: "",
 
         inputFormat: "",
