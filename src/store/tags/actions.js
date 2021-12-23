@@ -72,7 +72,7 @@ export async function addTag({ dispatch }, tag) {
 export async function updateTag({ dispatch }, tag) {
   let response = null;
   await api
-    .put(`api/tag/${tag.spec}`, tag.title, tag.connectedTasks)
+    .put(`api/tag/${tag.spec}`, {}, {params: {title: tag.title}})
     .then(async (res) => {
       response = {
         status: res.status,

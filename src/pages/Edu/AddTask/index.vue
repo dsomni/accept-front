@@ -16,7 +16,7 @@ q-page
           autofocus,
           v-model="validator.addTagDialog.title.$model",
           @blur="validator.addTagDialog.title.$touch",
-          :error-message="errorMsgTagTitle()",
+          :error-message="errorMsgTagTitleAdd()",
           :error="!!validator.addTagDialog.title.$error"
         )
 
@@ -28,6 +28,34 @@ q-page
           :disable="!!validator.addTagDialog.$invalid",
           @click="addTag"
         )
+
+  q-dialog(v-model="openEditTagDialog")
+    q-card.q-pa-sm.add-tag-dialog.dialog
+      q-card-section.row.items-center
+        .dialog-title Редактировать Тег
+        q-space
+        q-btn(icon="close", flat, color="primary", round, dense, v-close-popup)
+
+      q-card-section.q-pt-none
+        q-input(
+          label="Название",
+          outline,
+          autofocus,
+          v-model="validator.editTagDialog.title.$model",
+          @blur="validator.editTagDialog.title.$touch",
+          :error-message="errorMsgTagTitleEdit()",
+          :error="!!validator.editTagDialog.title.$error"
+        )
+
+      q-card-actions(align="right")
+        q-btn(
+          flat,
+          label="Сохранить",
+          color="primary",
+          :disable="!!validator.editTagDialog.$invalid",
+          @click="async ()=> { await updateTag(); openEditTagDialog = false;}"
+        )
+
   q-tabs.q-ma-sm.bg-white(
     v-model="tab",
     active-color="primary",
@@ -93,7 +121,7 @@ q-page
                     flat,
                     round,
                     icon="edit",
-                    @click="() => {}"
+                    @click="() => { setupEditTagDialog(scope.opt); openEditTagDialog = true; }"
                   )
                   q-btn(
                     size="0.7em",
@@ -152,17 +180,6 @@ const CONFIGS = require("../../../../configs.js");
 
 const limitWidth = 600;
 
-// const tags = [
-//   "алгоритмы",
-//   "строки",
-//   "массивы",
-//   "qwer",
-//   "qwert",
-//   "qwerty",
-//   "qwertyu",
-//   "qwertyui",
-// ];
-
 export default defineComponent({
   name: "EduAddTask",
   components: { ckeditor: CKEditor.component },
@@ -190,12 +207,18 @@ export default defineComponent({
       tagOptions,
 
       openAddTagDialog: ref(false),
+      openEditTagDialog: ref(false),
     };
   },
   data() {
     return {
       addTagDialog: ref({
         title: "",
+      }),
+      editTagDialog: ref({
+        oldTitle: "",
+        title: "",
+        spec: "",
       }),
       taskForm: ref({
         title: "Название Задачи",
@@ -232,6 +255,12 @@ export default defineComponent({
           a.title > b.title ? 1 : b.title > a.title ? -1 : 0
         );
       }
+    },
+
+    setupEditTagDialog(tag) {
+      this.editTagDialog.spec = tag.spec;
+      this.editTagDialog.oldTitle = tag.title;
+      this.editTagDialog.title = tag.title;
     },
 
     async confirmTagRemovalDialog(tag) {
@@ -300,9 +329,18 @@ export default defineComponent({
       }
       return false;
     },
-    validateTagTitleUniqueness(title) {
+    validateTagTitleAddUniqueness(title) {
       return !this.tags
         .map((item) => {
+          return item.title.toLowerCase();
+        })
+        .includes(title.toLowerCase());
+    },
+
+    validateTagTitleEditUniqueness(title) {
+      return !this.tags
+        .map((item) => {
+          if (item.title == this.editTagDialog.oldTitle) return ;
           return item.title.toLowerCase();
         })
         .includes(title.toLowerCase());
@@ -323,7 +361,7 @@ export default defineComponent({
       // }
     },
 
-    errorMsgTagTitle() {
+    errorMsgTagTitleAdd() {
       if (this.validator.addTagDialog.title.required.$invalid) {
         return `Пожалуйста, заполните поле`;
       }
@@ -341,7 +379,27 @@ export default defineComponent({
       }
     },
 
+    errorMsgTagTitleEdit() {
+      if (this.validator.editTagDialog.title.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.editTagDialog.title.minLength.$invalid) {
+        return `Тег должен быть не короче ${this.validator.addTagDialog.title.minLength.$params.min} символов`;
+      }
+      if (this.validator.editTagDialog.title.maxLength.$invalid) {
+        return `Тег должен быть не длиннее ${this.validator.addTagDialog.title.maxLength.$params.max} символов`;
+      }
+      if (this.validator.editTagDialog.title.regExpValidation.$invalid) {
+        return `Используются недопустимые символы`;
+      }
+      if (this.validator.editTagDialog.title.uniquenessValidation.$invalid) {
+        return `Похожий тег уже существует`;
+      }
+    },
+
+
     async addTag() {
+      this.$refs.TagSelector.hidePopup();
       const Tag = {
         title: this.addTagDialog.title,
       };
@@ -366,15 +424,15 @@ export default defineComponent({
     },
 
     async updateTag() {
-      const Tag = {
-        title: this.addTagDialog.title,
-      };
-      const response = await this.store.dispatch("tags/addTag", Tag);
+      const tag = this.editTagDialog;
+      if (tag.title == tag.oldTitle) return;
+      this.$refs.TagSelector.hidePopup();
+      const response = await this.store.dispatch('tags/updateTag', tag);
       if (response.status == 200) {
         this.q.notify({
           color: "green-4",
           textColor: "white",
-          message: "Тег успешно добавлен",
+          message: "Тег успешно обновлён",
         });
         await this.loadTags();
       } else {
@@ -412,13 +470,24 @@ export default defineComponent({
   },
   validations() {
     return {
+      editTagDialog: {
+        oldTitle :{},
+        spec: {},
+        title: {
+          required,
+          maxLength: maxLength(64),
+          minLength: minLength(3),
+          regExpValidation: this.validateTagTitleSymbols,
+          uniquenessValidation: this.validateTagTitleEditUniqueness,
+        },
+      },
       addTagDialog: {
         title: {
           required,
           maxLength: maxLength(64),
           minLength: minLength(3),
           regExpValidation: this.validateTagTitleSymbols,
-          uniquenessValidation: this.validateTagTitleUniqueness,
+          uniquenessValidation: this.validateTagTitleAddUniqueness,
         },
       },
 
