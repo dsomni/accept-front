@@ -53,7 +53,7 @@ q-page
           label="Сохранить",
           color="primary",
           :disable="!!validator.editTagDialog.$invalid",
-          @click="async ()=> { await updateTag(); openEditTagDialog = false;}"
+          @click="async () => { await updateTag(); openEditTagDialog = false; }"
         )
 
   q-tabs.q-ma-sm.bg-white(
@@ -67,8 +67,10 @@ q-page
   q-separator
 
   q-tab-panels(v-model="tab")
-    q-tab-panel(name="editor" style="overflow: hidden")
-      .editor-container.q-gutter-xl(:class="{'row': (q.screen.width >= limitWidth)}")
+    q-tab-panel(name="editor", style="overflow: hidden")
+      .editor-container.q-gutter-xl(
+        :class="{ row: q.screen.width >= limitWidth }"
+      )
         .col
           q-input.line-input(
             label="Название",
@@ -144,8 +146,25 @@ q-page
               )
         .col-7
           .description-container
-            .field-title Описание
-            ckeditor.description-editor(:editor="editor", v-model="taskForm.description", :config="editorConfig")
+            .row
+              .field-title(
+                :class="{ 'field-title-error': !!validator.taskForm.description.$error }"
+              ) Описание
+              q-space
+              q-icon.text-negative(
+                v-if="!!validator.taskForm.description.$error",
+                style="font-size: 1.75em",
+                text-color="negative",
+                name="error"
+              )
+            ckeditor.description-editor(
+              :editor="editor",
+              v-model="validator.taskForm.description.$model",
+              :config="editorConfig"
+            )
+            .field-error.text-negative(
+              v-if="!!validator.taskForm.description.$error"
+            ) {{ errorMsgDescription() }}
 
     q-tab-panel(name="preview")
       .preview-container
@@ -191,6 +210,7 @@ export default defineComponent({
   async mounted() {
     document.title = "Добавить задачу";
     await this.loadTags();
+    this.validator.taskForm.$touch();
   },
   setup() {
     const validator = useVuelidate();
@@ -202,7 +222,6 @@ export default defineComponent({
 
     return {
       limitWidth,
-
 
       q,
       store,
@@ -230,9 +249,15 @@ export default defineComponent({
       }),
       taskForm: ref({
         title: "Название Задачи",
-        tags:[{title: "Заглушка1"},{title: "Заглушка2"},{title: "Заглушка3"}],
+        tags: [
+          { title: "Заглушка1" },
+          { title: "Заглушка2" },
+          { title: "Заглушка3" },
+        ],
         grade: "",
-        description: `<p>${'safdsfdsfs '.repeat(100)}</p><p>${'safdsfdsfssafdsfdsfs '.repeat(30)}</p>`,
+        description: `<p>${"safdsfdsfs ".repeat(
+          100
+        )}</p><p>${"safdsfdsfssafdsfdsfs ".repeat(30)}</p>`,
         author: "",
 
         inputFormat: "",
@@ -314,6 +339,8 @@ export default defineComponent({
     },
 
     validateDefaultSymbols(content) {
+      // console.log(this.validator.taskForm.description.$error)
+      // console.log(this.validator.taskForm.description.$errors)
       const validContentRegExp =
         /^[0-9a-zA-ZА-ЯЁа-яё!@#$%^*()-="№:?_+.,<>~\\` ]+$/;
       if (validContentRegExp.test(content)) {
@@ -348,7 +375,7 @@ export default defineComponent({
     validateTagTitleEditUniqueness(title) {
       return !this.tags
         .map((item) => {
-          if (item.title == this.editTagDialog.oldTitle) return ;
+          if (item.title == this.editTagDialog.oldTitle) return;
           return item.title.toLowerCase();
         })
         .includes(title.toLowerCase());
@@ -405,6 +432,14 @@ export default defineComponent({
       }
     },
 
+    errorMsgDescription() {
+      if (this.validator.taskForm.description.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.taskForm.description.maxLength.$invalid) {
+        return `Превышено допустимое количество символов символов`;
+      }
+    },
 
     async addTag() {
       this.$refs.TagSelector.hidePopup();
@@ -435,7 +470,7 @@ export default defineComponent({
       const tag = this.editTagDialog;
       if (tag.title == tag.oldTitle) return;
       this.$refs.TagSelector.hidePopup();
-      const response = await this.store.dispatch('tags/updateTag', tag);
+      const response = await this.store.dispatch("tags/updateTag", tag);
       if (response.status == 200) {
         this.q.notify({
           color: "green-4",
@@ -479,7 +514,7 @@ export default defineComponent({
   validations() {
     return {
       editTagDialog: {
-        oldTitle :{},
+        oldTitle: {},
         spec: {},
         title: {
           required,
@@ -514,7 +549,7 @@ export default defineComponent({
         },
         description: {
           required,
-          maxLength: maxLength(10000),
+          maxLength: maxLength(32768),
         },
         inputFormat: {
           required,

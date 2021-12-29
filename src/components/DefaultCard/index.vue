@@ -13,7 +13,7 @@
       style="height: 400px"
     )
       template(v-slot:content="scope")
-        .text-h2.absolute-bottom.text-left.text-white.q-py-md.q-px-md.card-title.q-mx-md(
+        .text-h2.absolute-bottom.text-left.text-white.q-py-md.q-px-lg.card-title(
             :class="{'text-right': isRight && !($q.screen.width < getLimitWidth), 'reduce-font-card':($q.screen.width < getLimitWidth)}"
         )  {{item.title}}
 
