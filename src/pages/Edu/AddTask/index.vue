@@ -165,6 +165,47 @@ q-page
             .field-error.text-negative(
               v-if="!!validator.taskForm.description.$error"
             ) {{ errorMsgDescription() }}
+          .inputFormat-container
+            .row
+              .field-title(
+                :class="{ 'field-title-error': !!validator.taskForm.inputFormat.$error }"
+              ) Входные данные
+              q-space
+              q-icon.text-negative(
+                v-if="!!validator.taskForm.inputFormat.$error",
+                style="font-size: 1.75em",
+                text-color="negative",
+                name="error"
+              )
+            ckeditor.inputFormat-editor(
+              :editor="editor",
+              v-model="validator.taskForm.inputFormat.$model",
+              :config="editorConfig"
+            )
+            .field-error.text-negative(
+              v-if="!!validator.taskForm.inputFormat.$error"
+            ) {{ errorMsgInputFormat() }}
+
+          .outputFormat-container
+            .row
+              .field-title(
+                :class="{ 'field-title-error': !!validator.taskForm.outputFormat.$error }"
+              ) Входные данные
+              q-space
+              q-icon.text-negative(
+                v-if="!!validator.taskForm.outputFormat.$error",
+                style="font-size: 1.75em",
+                text-color="negative",
+                name="error"
+              )
+            ckeditor.outputFormat-editor(
+              :editor="editor",
+              v-model="validator.taskForm.outputFormat.$model",
+              :config="editorConfig"
+            )
+            .field-error.text-negative(
+              v-if="!!validator.taskForm.outputFormat.$error"
+            ) {{ errorMsgOutputFormat() }}
 
     q-tab-panel(name="preview")
       .preview-container
@@ -179,6 +220,12 @@ q-page
               :clickable="false"
             )
         .description(v-html="taskForm.description")
+        .inputFormat
+          .inputFormat-title.text-primary Входные данные
+          .inputFormat-content(v-html="taskForm.inputFormat")
+        .outputFormat
+          .outputFormat-title.text-primary Выходные данные
+          .outputFormat-content(v-html="taskForm.outputFormat")
 </template>
 
 
@@ -227,8 +274,8 @@ export default defineComponent({
       store,
       validator,
 
-      tab: ref("editor"),
-      // tab: ref("preview"),
+      // tab: ref("editor"),
+      tab: ref("preview"),
 
       tags,
       tagOptions,
@@ -260,8 +307,8 @@ export default defineComponent({
         )}</p><p>${"safdsfdsfssafdsfdsfs ".repeat(30)}</p>`,
         author: "",
 
-        inputFormat: "",
-        outputFormat: "",
+        inputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
+        outputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
 
         hint: {
           content: "",
@@ -440,6 +487,22 @@ export default defineComponent({
         return `Превышено допустимое количество символов символов`;
       }
     },
+    errorMsgInputFormat() {
+      if (this.validator.taskForm.inputFormat.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.taskForm.inputFormat.maxLength.$invalid) {
+        return `Превышено допустимое количество символов символов`;
+      }
+    },
+    errorMsgOutputFormat() {
+      if (this.validator.taskForm.outputFormat.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.taskForm.outputFormat.maxLength.$invalid) {
+        return `Превышено допустимое количество символов символов`;
+      }
+    },
 
     async addTag() {
       this.$refs.TagSelector.hidePopup();
@@ -553,13 +616,11 @@ export default defineComponent({
         },
         inputFormat: {
           required,
-          maxLength: maxLength(10000),
-          regExpValidation: this.validateDefaultSymbols,
+          maxLength: maxLength(16384),
         },
         outputFormat: {
           required,
-          maxLength: maxLength(10000),
-          regExpValidation: this.validateDefaultSymbols,
+          maxLength: maxLength(16384),
         },
 
         hint: {
