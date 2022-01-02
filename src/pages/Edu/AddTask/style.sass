@@ -27,17 +27,32 @@
     width: 50em
     max-width: 45vw
     overflow-wrap: break-word
-  & .description, .inputFormat, .outputFormat
+  & .description, .inputFormat, .outputFormat, .examples
     margin: 1.5em 0
     font-size: 1.2em
     width: 60em
     max-width: 60vw
     overflow-wrap: break-word
 
-  .inputFormat-title, .outputFormat-title
+  .inputFormat-title, .outputFormat-title, .example-title
     font-size: 1.2em
   .inputFormat-content, .outputFormat-content
     margin-top: 0.2em
+
+
+.example-title
+  margin-bottom: 0.5em
+
+.example-pair
+  margin-bottom: 2em
+  font-size: 1.1em
+
+.example-row > td:before
+  background: rgba(0,0,0,0) !important
+
+
+.selector-container
+  max-height: 2em
 
 .line-input, .selector-container, .tags-editor-container
   max-width: 30em
@@ -84,7 +99,7 @@
   width: 30em
   max-width: 90vw
 
-.description-container, .inputFormat-container, .outputFormat-container
+.description-container, .inputFormat-container, .outputFormat-container, .remark-container
   max-width: 55vw
   margin-bottom: 2.5em
 
@@ -102,9 +117,29 @@
 .field-title
   font-size: 1.4em
   margin-bottom: 0.5em
+  color: $primary
+
 .field-title-error
   color: $negative
 
 .field-error
   font-size: 1em
   margin: 0.4em 0
+
+.example-input
+  margin-bottom: 1em
+
+.example-container
+  margin: 0.4em 0
+
+.examples-container
+  margin: 3em 0
+
+.example-small-title
+  font-size: 1em
+
+.example-main-title
+  font-size: 1.2em
+
+.example-add-btn
+  width: 100%

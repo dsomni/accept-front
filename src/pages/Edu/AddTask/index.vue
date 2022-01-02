@@ -134,16 +134,57 @@ q-page
                       icon="delete",
                       @click="confirmTagRemovalDialog(scope.label)"
                     )
-
             .col-1
               q-btn(
                 round,
                 flat,
                 color="white",
-                text-color="primary",
+                text-color="secondary",
                 icon="add",
                 @click="openAddTagDialog = true"
               )
+
+          .examples-container
+            .field-title Примеры
+            template(
+              v-for="(example, index) in taskForm.examples",
+              :key="index"
+            )
+              .row.q-gutter-x-xs.items-center
+                .example-main-title {{ 'Пример #' + (index + 1) }}
+                q-btn(
+                  size="0.8em",
+                  color="negative",
+                  flat,
+                  round,
+                  icon="delete",
+                  @click="() => { taskForm.examples.splice(index, 1); }"
+                )
+              .example-container
+                .example-small-title Входные данные
+                q-input.example-input(
+                  outline,
+                  autogrow,
+                  v-model="taskForm.examples[index].inputData",
+                  error-message="Пожалуйста, заполните поле!",
+                  :error="!!!taskForm.examples[index].inputData"
+                )
+                .example-small-title Выходные данные
+                q-input.example-input(
+                  outline,
+                  autogrow,
+                  v-model="taskForm.examples[index].outputData",
+                  error-message="Пожалуйста, заполните поле!",
+                  :error="!!!taskForm.examples[index].outputData"
+                )
+            q-btn.example-add-btn(
+              outline,
+              size="1em",
+              color="secondary",
+              icon="add",
+              @click="() => { taskForm.examples.push({ inputData: '', outputData: '' }); }"
+            )
+
         .col-7
           .description-container
             .row
@@ -190,7 +231,7 @@ q-page
             .row
               .field-title(
                 :class="{ 'field-title-error': !!validator.taskForm.outputFormat.$error }"
-              ) Входные данные
+              ) Выходные данные
               q-space
               q-icon.text-negative(
                 v-if="!!validator.taskForm.outputFormat.$error",
@@ -206,6 +247,27 @@ q-page
             .field-error.text-negative(
               v-if="!!validator.taskForm.outputFormat.$error"
             ) {{ errorMsgOutputFormat() }}
+
+          .remark-container
+            .row
+              .field-title(
+                :class="{ 'field-title-error': !!validator.taskForm.remark.$error }"
+              ) Примечание
+              q-space
+              q-icon.text-negative(
+                v-if="!!validator.taskForm.remark.$error",
+                style="font-size: 1.75em",
+                text-color="negative",
+                name="error"
+              )
+            ckeditor.outputFormat-editor(
+              :editor="editor",
+              v-model="validator.taskForm.remark.$model",
+              :config="editorConfig"
+            )
+            .field-error.text-negative(
+              v-if="!!validator.taskForm.remark.$error"
+            ) {{ errorMsgRemark() }}
 
     q-tab-panel(name="preview")
       .preview-container
@@ -226,12 +288,72 @@ q-page
         .outputFormat
           .outputFormat-title.text-primary Выходные данные
           .outputFormat-content(v-html="taskForm.outputFormat")
+        .examples(
+          v-if='taskForm.examples.length > 0'
+        )
+          .example-title.text-primary Примеры
+          template(v-for="(example, index) in taskForm.examples", :key="index")
+            .example-pair
+              q-markup-table(
+                separator="horizontal",
+                flat,
+                bordered,
+                style="margin-bottom: 0.5em; border-color: #5e5e5e"
+              )
+                thead
+                  tr
+                    th(
+                      style="text-align: left; font-size: 0.8em; border-color: #5e5e5e"
+                    )
+                      .row.justify-between.items-center
+                        div Входные данные
+                        q-btn(
+                          size="0.75em",
+                          flat,
+                          color="secondary",
+                          icon="content_copy",
+                          @click="() => { copyText(taskForm.examples[index].inputData); }"
+                        )
+
+                tbody(
+                  style="background: white !important; border-color: #5e5e5e"
+                )
+                  tr.example-row.bg-blue-grey-1
+                    td(
+                      style="white-space: pre-wrap; word-wrap: break-word; font-size: 0.65em"
+                    ) {{ taskForm.examples[index].inputData }}
+
+              q-markup-table(
+                separator="horizontal",
+                flat,
+                bordered,
+                style="border-color: #5e5e5e"
+              )
+                thead
+                  tr
+                    th(
+                      style="text-align: left; font-size: 0.8em; border-color: #5e5e5e"
+                    )
+                      .row.justify-between.items-center
+                        div Выходные данные
+                        q-btn(
+                          size="0.75em",
+                          flat,
+                          color="secondary",
+                          icon="content_copy",
+                          @click="() => { copyText(taskForm.examples[index].outputData); }"
+                        )
+                tbody
+                  tr.example-row.bg-blue-grey-1
+                    td(
+                      style="white-space: pre-wrap; word-wrap: break-word; border-color: #5e5e5e; font-size: 0.65em"
+                    ) {{ taskForm.examples[index].outputData }}
 </template>
 
 
 <script>
 import { defineComponent, ref } from "vue";
-import { useQuasar } from "quasar";
+import { useQuasar, copyToClipboard } from "quasar";
 import { useStore } from "vuex";
 import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
@@ -274,8 +396,8 @@ export default defineComponent({
       store,
       validator,
 
-      // tab: ref("editor"),
-      tab: ref("preview"),
+      tab: ref("editor"),
+      // tab: ref("preview"),
 
       tags,
       tagOptions,
@@ -302,13 +424,23 @@ export default defineComponent({
           { title: "Заглушка3" },
         ],
         grade: "",
-        description: `<p>${"safdsfdsfs ".repeat(
-          100
-        )}</p><p>${"safdsfdsfssafdsfdsfs ".repeat(30)}</p>`,
+        description: `<p>${"safdsfdsfssafdsfdsfs ".repeat(30)}</p>`,
         author: "",
 
         inputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
         outputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
+        remark: ``,
+
+        examples: [
+          {
+            inputData: `1`,
+            outputData: `2`,
+          },
+          {
+            inputData: `00005`,
+            outputData: `2\n465`,
+          },
+        ],
 
         hint: {
           content: "",
@@ -366,6 +498,23 @@ export default defineComponent({
           await this.deleteTag(tag);
         })
         .onCancel(() => {});
+    },
+
+    copyText(text) {
+      copyToClipboard(text)
+        .then(() => {
+          this.q.notify({
+            color: "green-9",
+            textColor: "white",
+            message: "Скопировано в буфер обмена",
+          });
+        })
+        .catch(() => {
+          this.q.notify({
+            color: "negative",
+            message: "Ошибка при копировании в буфер обмена",
+          });
+        });
     },
 
     tagFilter(val, update) {
@@ -484,7 +633,7 @@ export default defineComponent({
         return `Пожалуйста, заполните поле`;
       }
       if (this.validator.taskForm.description.maxLength.$invalid) {
-        return `Превышено допустимое количество символов символов`;
+        return `Превышено допустимое количество символов`;
       }
     },
     errorMsgInputFormat() {
@@ -492,7 +641,7 @@ export default defineComponent({
         return `Пожалуйста, заполните поле`;
       }
       if (this.validator.taskForm.inputFormat.maxLength.$invalid) {
-        return `Превышено допустимое количество символов символов`;
+        return `Превышено допустимое количество символов`;
       }
     },
     errorMsgOutputFormat() {
@@ -500,7 +649,13 @@ export default defineComponent({
         return `Пожалуйста, заполните поле`;
       }
       if (this.validator.taskForm.outputFormat.maxLength.$invalid) {
-        return `Превышено допустимое количество символов символов`;
+        return `Превышено допустимое количество символов`;
+      }
+    },
+
+    errorMsgRemark() {
+      if (this.validator.taskForm.remark.maxLength.$invalid) {
+        return `Превышено допустимое количество символов`;
       }
     },
 
@@ -512,7 +667,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/addTag", Tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-4",
+          color: "green-9",
           textColor: "white",
           message: "Тег успешно добавлен",
         });
@@ -536,7 +691,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/updateTag", tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-4",
+          color: "green-9",
           textColor: "white",
           message: "Тег успешно обновлён",
         });
@@ -557,7 +712,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/deleteTag", tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-4",
+          color: "green-9",
           textColor: "white",
           message: "Тег успешно удалён",
         });
@@ -620,6 +775,9 @@ export default defineComponent({
         },
         outputFormat: {
           required,
+          maxLength: maxLength(16384),
+        },
+        remark: {
           maxLength: maxLength(16384),
         },
 
