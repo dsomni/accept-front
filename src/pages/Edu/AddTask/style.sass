@@ -21,22 +21,23 @@
   .q-chip
     font-size: 0.75em
 
-  & .description
-    margin: 1.5em 0
-    font-size: 1.2em
-    width: 50em
-    max-width: 45vw
+  & .credentials
+    margin-top: 0.6em
+    font-size: 1em
+    width: 60em
+    max-width: 60vw
     overflow-wrap: break-word
-  & .description, .inputFormat, .outputFormat, .examples
+
+  & .description, .inputFormat, .outputFormat, .examples, .remark
     margin: 1.5em 0
     font-size: 1.2em
     width: 60em
     max-width: 60vw
     overflow-wrap: break-word
 
-  .inputFormat-title, .outputFormat-title, .example-title
+  .inputFormat-title, .outputFormat-title, .example-title, .remark-title
     font-size: 1.2em
-  .inputFormat-content, .outputFormat-content
+  .inputFormat-content, .outputFormat-content, .remark-content
     margin-top: 0.2em
 
 
@@ -71,6 +72,23 @@
   & .q-field__bottom
     font-size: 0.65em
 
+.grade-input
+  width: 40%
+  margin-bottom: 2.5em
+
+  & .q-field__label
+    font-size: 1.1em
+  & .q-field__inner
+    font-size: 1.2em
+  & .q-field__native
+    min-height: 1.3em !important
+  & .q-field__messages
+    font-size: 1em
+  & .q-field__counter
+    font-size: 1em
+  & .q-field__bottom
+    font-size: 0.8em
+
 .tags-editor-container
   margin-bottom: 1.5em
   .q-chip
@@ -102,6 +120,10 @@
 .description-container, .inputFormat-container, .outputFormat-container, .remark-container
   max-width: 55vw
   margin-bottom: 2.5em
+.selector-container
+  margin-bottom: 3em
+.grade-container
+  max-width: 55vw
 
 .ck
   font-size: 1.1em
@@ -133,7 +155,7 @@
   margin: 0.4em 0
 
 .examples-container
-  margin: 3em 0
+  margin: 1.1em 0
 
 .example-small-title
   font-size: 1em

@@ -144,6 +144,16 @@ q-page
                 @click="openAddTagDialog = true"
               )
 
+          .grade-container
+            q-input.grade-input(
+              label="Класс",
+              outline,
+              v-model="validator.taskForm.grade.$model",
+              @blur="validator.taskForm.grade.$touch",
+              :error-message="errorMsgGrade()",
+              :error="!!validator.taskForm.grade.$error"
+            )
+
           .examples-container
             .field-title Примеры
             template(
@@ -281,6 +291,9 @@ q-page
               :label="tag.title",
               :clickable="false"
             )
+        .credentials
+          .author {{ 'Автор: ' + taskForm.author }}
+          .grade {{ 'Класс: ' + taskForm.grade }}
         .description(v-html="taskForm.description")
         .inputFormat
           .inputFormat-title.text-primary Входные данные
@@ -288,9 +301,7 @@ q-page
         .outputFormat
           .outputFormat-title.text-primary Выходные данные
           .outputFormat-content(v-html="taskForm.outputFormat")
-        .examples(
-          v-if='taskForm.examples.length > 0'
-        )
+        .examples(v-if="taskForm.examples.length > 0")
           .example-title.text-primary Примеры
           template(v-for="(example, index) in taskForm.examples", :key="index")
             .example-pair
@@ -348,6 +359,10 @@ q-page
                     td(
                       style="white-space: pre-wrap; word-wrap: break-word; border-color: #5e5e5e; font-size: 0.65em"
                     ) {{ taskForm.examples[index].outputData }}
+
+        .remark(v-if="!!taskForm.remark")
+          .remark-title.text-primary Примечание
+          .remark-content(v-html="taskForm.remark")
 </template>
 
 
@@ -379,6 +394,7 @@ export default defineComponent({
   async mounted() {
     document.title = "Добавить задачу";
     await this.loadTags();
+    this.setupAuthor();
     this.validator.taskForm.$touch();
   },
   setup() {
@@ -423,13 +439,13 @@ export default defineComponent({
           { title: "Заглушка2" },
           { title: "Заглушка3" },
         ],
-        grade: "",
-        description: `<p>${"safdsfdsfssafdsfdsfs ".repeat(30)}</p>`,
+        grade: "11",
+        description: `<p>${"safdsf dsfssafdsf dsfs ".repeat(30)}</p>`,
         author: "",
 
-        inputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
-        outputFormat: `<p>${"safdsfdsfssafdsfdsfs ".repeat(15)}</p>`,
-        remark: ``,
+        inputFormat: `<p>${"safds fdsf ss afd sfdsfs ".repeat(15)}</p>`,
+        outputFormat: `<p>${"safdsf dsfssa fdsfd sfs ".repeat(15)}</p>`,
+        remark: `<p>${"safdsfdsf ssafdsf ds fs ".repeat(15)}</p>`,
 
         examples: [
           {
@@ -468,7 +484,9 @@ export default defineComponent({
         );
       }
     },
-
+    setupAuthor() {
+      this.taskForm.author = this.store.getters["users/shortName"];
+    },
     setupEditTagDialog(tag) {
       this.editTagDialog.spec = tag.spec;
       this.editTagDialog.oldTitle = tag.title;
@@ -499,6 +517,26 @@ export default defineComponent({
         })
         .onCancel(() => {});
     },
+
+    // shrinkAuthor(author) {
+    //   let info = author.split(' ');
+    //   let reduced = '';
+    //   let j = 0;
+    //   for (j = 0; j < info.length; j++) {
+    //     const element = info[j];
+    //     if (!!info[j]){
+    //       reduced = element;
+    //       break;
+    //     }
+    //   }
+    //   for (let i = j+1; i < info.length; i++) {
+    //     const element = info[i];
+    //     if (!!info[i]){
+    //       reduced += ' ' + element[0] + '.'
+    //     }
+    //   }
+    //   return reduced;
+    // },
 
     copyText(text) {
       copyToClipboard(text)
@@ -656,6 +694,21 @@ export default defineComponent({
     errorMsgRemark() {
       if (this.validator.taskForm.remark.maxLength.$invalid) {
         return `Превышено допустимое количество символов`;
+      }
+    },
+
+    errorMsgGrade() {
+      if (this.validator.taskForm.grade.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.taskForm.grade.numeric.$invalid) {
+        return `Класс должен быть числом`;
+      }
+      if (this.validator.taskForm.grade.between.$invalid) {
+        console.log(this.validator.taskForm.grade.between);
+        let l = this.validator.taskForm.grade.between.$params.min;
+        let h = this.validator.taskForm.grade.between.$params.max;
+        return `Значение класса должно быть между ${l} и ${h}`;
       }
     },
 
