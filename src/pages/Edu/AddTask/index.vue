@@ -153,49 +153,6 @@ q-page
               :error-message="errorMsgGrade()",
               :error="!!validator.taskForm.grade.$error"
             )
-
-          .examples-container
-            .field-title Примеры
-            template(
-              v-for="(example, index) in taskForm.examples",
-              :key="index"
-            )
-              .row.q-gutter-x-xs.items-center
-                .example-main-title {{ 'Пример #' + (index + 1) }}
-                q-btn(
-                  size="0.8em",
-                  color="negative",
-                  flat,
-                  round,
-                  icon="delete",
-                  @click="() => { taskForm.examples.splice(index, 1); }"
-                )
-              .example-container
-                .example-small-title Входные данные
-                q-input.example-input(
-                  outline,
-                  autogrow,
-                  v-model="taskForm.examples[index].inputData",
-                  error-message="Пожалуйста, заполните поле!",
-                  :error="!!!taskForm.examples[index].inputData"
-                )
-                .example-small-title Выходные данные
-                q-input.example-input(
-                  outline,
-                  autogrow,
-                  v-model="taskForm.examples[index].outputData",
-                  error-message="Пожалуйста, заполните поле!",
-                  :error="!!!taskForm.examples[index].outputData"
-                )
-            q-btn.example-add-btn(
-              outline,
-              size="1em",
-              color="secondary",
-              icon="add",
-              @click="() => { taskForm.examples.push({ inputData: '', outputData: '' }); }"
-            )
-
-        .col-7
           .description-container
             .row
               .field-title(
@@ -258,6 +215,48 @@ q-page
               v-if="!!validator.taskForm.outputFormat.$error"
             ) {{ errorMsgOutputFormat() }}
 
+        .col-6
+          .examples-container
+            .field-title Примеры
+            template(
+              v-for="(example, index) in taskForm.examples",
+              :key="index"
+              )
+              .row.q-gutter-x-xs.items-center
+                .example-main-title {{ 'Пример #' + (index + 1) }}
+                q-btn(
+                  size="0.8em",
+                  color="negative",
+                  flat,
+                  round,
+                  icon="delete",
+                  @click="() => { taskForm.examples.splice(index, 1); }"
+                )
+              .example-container
+                .example-small-title Входные данные
+                q-input.example-input(
+                  outline,
+                  autogrow,
+                  v-model="taskForm.examples[index].inputData",
+                  error-message="Пожалуйста, заполните поле!",
+                  :error="!!!taskForm.examples[index].inputData"
+                )
+                .example-small-title Выходные данные
+                q-input.example-input(
+                  outline,
+                  autogrow,
+                  v-model="taskForm.examples[index].outputData",
+                  error-message="Пожалуйста, заполните поле!",
+                  :error="!!!taskForm.examples[index].outputData"
+                )
+            q-btn.example-add-btn(
+              outline,
+              size="1em",
+              color="secondary",
+              icon="add",
+              @click="() => { taskForm.examples.push({ inputData: '', outputData: '' }); }"
+            )
+
           .remark-container
             .row
               .field-title(
@@ -278,6 +277,7 @@ q-page
             .field-error.text-negative(
               v-if="!!validator.taskForm.remark.$error"
             ) {{ errorMsgRemark() }}
+
 
     q-tab-panel(name="preview")
       .preview-container
@@ -573,8 +573,6 @@ export default defineComponent({
     },
 
     validateDefaultSymbols(content) {
-      // console.log(this.validator.taskForm.description.$error)
-      // console.log(this.validator.taskForm.description.$errors)
       const validContentRegExp =
         /^[0-9a-zA-ZА-ЯЁа-яё!@#$%^*()-="№:?_+.,<>~\\` ]+$/;
       if (validContentRegExp.test(content)) {
@@ -705,7 +703,6 @@ export default defineComponent({
         return `Класс должен быть числом`;
       }
       if (this.validator.taskForm.grade.between.$invalid) {
-        console.log(this.validator.taskForm.grade.between);
         let l = this.validator.taskForm.grade.between.$params.min;
         let h = this.validator.taskForm.grade.between.$params.max;
         return `Значение класса должно быть между ${l} и ${h}`;
