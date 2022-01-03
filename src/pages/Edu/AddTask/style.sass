@@ -18,8 +18,8 @@
 
   & .tags
     max-width: 60em
-  .q-chip
-    font-size: 0.75em
+    .q-chip
+      font-size: 0.8em
 
   & .credentials
     margin-top: 0.6em
@@ -40,7 +40,6 @@
   .inputFormat-content, .outputFormat-content, .remark-content
     margin-top: 0.2em
 
-
 .example-title
   margin-bottom: 0.5em
 
@@ -50,7 +49,6 @@
 
 .example-row > td:before
   background: rgba(0,0,0,0) !important
-
 
 .selector-container
   max-height: 2em
@@ -71,6 +69,23 @@
     font-size: 1.1em
   & .q-field__bottom
     font-size: 0.65em
+
+.hint-alarm-input
+  width: 15em
+  margin-bottom: 2.5em
+
+  & .q-field__label
+    font-size: 1.1em
+  & .q-field__inner
+    font-size: 1.2em
+  & .q-field__native
+    min-height: 1.3em !important
+  & .q-field__messages
+    font-size: 1em
+  & .q-field__counter
+    font-size: 1em
+  & .q-field__bottom
+    font-size: 0.8em
 
 .grade-input
   width: 40%
@@ -113,6 +128,13 @@
   & .q-field__messages
     font-size: 1.1em
 
+
+.hint-content-section::-webkit-scrollbar
+  width: 5px
+
+.hint-content-section::-webkit-scrollbar-thumb
+  background-color: darkgrey
+
 .add-tag-dialog
   width: 30em
   max-width: 90vw
@@ -136,6 +158,13 @@
   .ck-editor__editable
     min-height: 8em
 
+.remark-container
+  .ck-editor__editable
+    min-height: 6em
+.hint-container
+  .ck-editor__editable
+    min-height: 6em
+
 .field-title
   font-size: 1.4em
   margin-bottom: 0.5em
@@ -154,9 +183,8 @@
 .example-container
   margin: 0.4em 0
 
-
 .examples-container
-  margin: 1.1em  0 2em 0
+  margin: 1.1em 0 2em 0
   max-width: 65vw
 
 .example-small-title

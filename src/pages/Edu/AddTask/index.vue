@@ -56,6 +56,20 @@ q-page
           @click="async () => { await updateTag(); openEditTagDialog = false; }"
         )
 
+  q-dialog(v-model="openHintDialog")
+    q-card.q-pa-sm.hint-dialog.dialog
+      q-card-section
+        .dialog-title.text-primary Подсказка
+
+      q-card-section.q-pt-none.scroll.hint-content-section(v-html="taskForm.hint.content", style="max-height: 60vh")
+      q-card-actions(align="right")
+        q-btn(
+          flat,
+          label="Скрыть",
+          color="primary",
+          @click="async () => { openHintDialog = false; }"
+        )
+
   q-tabs.q-ma-sm.bg-white(
     v-model="tab",
     active-color="primary",
@@ -165,7 +179,7 @@ q-page
                 text-color="negative",
                 name="error"
               )
-            ckeditor.description-editor(
+            ckeditor(
               :editor="editor",
               v-model="validator.taskForm.description.$model",
               :config="editorConfig"
@@ -185,7 +199,7 @@ q-page
                 text-color="negative",
                 name="error"
               )
-            ckeditor.inputFormat-editor(
+            ckeditor(
               :editor="editor",
               v-model="validator.taskForm.inputFormat.$model",
               :config="editorConfig"
@@ -206,7 +220,7 @@ q-page
                 text-color="negative",
                 name="error"
               )
-            ckeditor.outputFormat-editor(
+            ckeditor(
               :editor="editor",
               v-model="validator.taskForm.outputFormat.$model",
               :config="editorConfig"
@@ -221,7 +235,7 @@ q-page
             template(
               v-for="(example, index) in taskForm.examples",
               :key="index"
-              )
+            )
               .row.q-gutter-x-xs.items-center
                 .example-main-title {{ 'Пример #' + (index + 1) }}
                 q-btn(
@@ -269,7 +283,7 @@ q-page
                 text-color="negative",
                 name="error"
               )
-            ckeditor.outputFormat-editor(
+            ckeditor(
               :editor="editor",
               v-model="validator.taskForm.remark.$model",
               :config="editorConfig"
@@ -278,6 +292,37 @@ q-page
               v-if="!!validator.taskForm.remark.$error"
             ) {{ errorMsgRemark() }}
 
+          .hint-container
+            .row
+              .field-title(
+                :class="{ 'field-title-error': !!validator.taskForm.hint.content.$error }"
+              ) Подсказка
+              q-space
+              q-icon.text-negative(
+                v-if="!!validator.taskForm.hint.content.$error",
+                style="font-size: 1.75em",
+                text-color="negative",
+                name="error"
+              )
+            ckeditor(
+              :editor="editor",
+              v-model="validator.taskForm.hint.content.$model",
+              :config="editorConfig"
+            )
+            .field-error.text-negative(
+              v-if="!!validator.taskForm.hint.content.$error"
+            ) {{ errorMsgHintContent() }}
+            q-input.hint-alarm-input(
+              label="Показывать через",
+              suffix="попыток"
+              outline,
+              :disable="!!!taskForm.hint.content.length"
+              autogrow,
+              v-model="validator.taskForm.hint.alarm.$model",
+              @blur="validator.taskForm.hint.alarm.$touch",
+              :error-message="errorMsgHintAlarm()",
+              :error="!!validator.taskForm.hint.alarm.$error"
+            )
 
     q-tab-panel(name="preview")
       .preview-container
@@ -363,6 +408,18 @@ q-page
         .remark(v-if="!!taskForm.remark")
           .remark-title.text-primary Примечание
           .remark-content(v-html="taskForm.remark")
+      q-page-sticky(
+        v-if='taskForm.hint.content.length > 0'
+        position="bottom-right",
+        :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+      )
+        q-btn(
+          :fab="q.screen.gt.xs",
+          fab-mini,
+          icon="visibility",
+          color="accent",
+          @click="()=>{ openHintDialog = true;}"
+      )
 </template>
 
 
@@ -382,6 +439,8 @@ import {
   maxLength,
   between,
   numeric,
+  minValue,
+  requiredIf,
 } from "@vuelidate/validators";
 
 const CONFIGS = require("../../../../configs.js");
@@ -420,6 +479,7 @@ export default defineComponent({
 
       openAddTagDialog: ref(false),
       openEditTagDialog: ref(false),
+      openHintDialog: ref(false),
     };
   },
   data() {
@@ -459,9 +519,9 @@ export default defineComponent({
         ],
 
         hint: {
-          content: "",
-          timerType: "",
-          timer: "",
+          content: `<p>${"фффф вввв гггг ее ".repeat(30) }</p>`,
+          alarmType: "attempts",
+          alarm: "1",
         },
       }),
 
@@ -709,6 +769,25 @@ export default defineComponent({
       }
     },
 
+    errorMsgHintContent() {
+      if (this.validator.taskForm.hint.content.maxLength.$invalid) {
+        return `Превышено допустимое количество символов`;
+      }
+    },
+
+    errorMsgHintAlarm() {
+      if (this.validator.taskForm.hint.alarm.required.$invalid) {
+        return `Пожалуйста, заполните поле`;
+      }
+      if (this.validator.taskForm.hint.alarm.numeric.$invalid) {
+        return `Значение должно быть числом`;
+      }
+      if (this.validator.taskForm.hint.alarm.minValue.$invalid) {
+        console.log(this.validator.taskForm.hint.alarm.minValue);
+        return `Минимальное значение - `;
+      }
+    },
+
     async addTag() {
       this.$refs.TagSelector.hidePopup();
       const Tag = {
@@ -833,12 +912,13 @@ export default defineComponent({
 
         hint: {
           content: {
-            maxLength: maxLength(1000),
-            regExpValidation: this.validateDefaultSymbols,
+            maxLength: maxLength(16384),
           },
-          // timer:{
-          //   minValue: minValue(1)
-          // }
+          alarm: {
+            required: requiredIf(this.taskForm.hint.content.length > 0),
+            numeric,
+            minValue: minValue(0),
+          },
         },
       },
     };
