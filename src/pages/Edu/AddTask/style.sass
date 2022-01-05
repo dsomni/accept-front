@@ -1,7 +1,7 @@
 .q-tab__label
   font-size: 0.9rem
 
-.editor-container
+.editor-container, .tests-container
   background-color: white
   font-size: 14px
   padding: 1em
@@ -35,10 +35,12 @@
     max-width: 60vw
     overflow-wrap: break-word
 
-  .inputFormat-title, .outputFormat-title, .example-title, .remark-title
+  & .inputFormat-title, .outputFormat-title, .example-title, .remark-title
     font-size: 1.2em
-  .inputFormat-content, .outputFormat-content, .remark-content
+  & .inputFormat-content, .outputFormat-content, .remark-content
     margin-top: 0.2em
+
+
 
 .example-title
   margin-bottom: 0.5em
@@ -139,8 +141,8 @@
   width: 30em
   max-width: 90vw
 
-.description-container, .inputFormat-container, .outputFormat-container, .remark-container
-  max-width: 65vw
+.description-container, .inputFormat-container, .outputFormat-container, .remark-container, .hint-container, .tests-container
+  max-width: 80vw
   margin-bottom: 2.5em
 .selector-container
   margin-bottom: 3em
@@ -166,7 +168,7 @@
     min-height: 6em
 
 .field-title
-  font-size: 1.4em
+  font-size: 1.5em
   margin-bottom: 0.5em
   color: $primary
 

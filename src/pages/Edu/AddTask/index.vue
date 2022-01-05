@@ -61,7 +61,10 @@ q-page
       q-card-section
         .dialog-title.text-primary Подсказка
 
-      q-card-section.q-pt-none.scroll.hint-content-section(v-html="taskForm.hint.content", style="max-height: 60vh")
+      q-card-section.q-pt-none.scroll.hint-content-section(
+        v-html="taskForm.hint.content",
+        style="max-height: 60vh"
+      )
       q-card-actions(align="right")
         q-btn(
           flat,
@@ -314,16 +317,63 @@ q-page
             ) {{ errorMsgHintContent() }}
             q-input.hint-alarm-input(
               label="Показывать через",
-              suffix="попыток"
+              suffix="попыток",
               outline,
-              :disable="!!!taskForm.hint.content.length"
+              :disable="!!!taskForm.hint.content.length",
               autogrow,
               v-model="validator.taskForm.hint.alarm.$model",
               @blur="validator.taskForm.hint.alarm.$touch",
               :error-message="errorMsgHintAlarm()",
               :error="!!validator.taskForm.hint.alarm.$error"
             )
-
+      .tests-container
+        .row
+          .field-title(
+            :class="{ 'field-title-error': !!validator.taskForm.tests.$error }"
+          ) Тесты
+          q-space
+          q-icon.text-negative(
+            v-if="!!validator.taskForm.tests.$error",
+            style="font-size: 1.75em",
+            text-color="negative",
+            name="error"
+          )
+        template(v-for="(test, index) in taskForm.tests", :key="index")
+          .row.q-gutter-x-xs.items-center
+            .example-main-title {{ 'Тест #' + (index + 1) }}
+            q-btn(
+              size="0.8em",
+              color="negative",
+              flat,
+              round,
+              icon="delete",
+              @click="() => { taskForm.tests.splice(index, 1); }"
+            )
+          .example-container
+            .example-small-title Входные данные
+            q-input.example-input(
+              outline,
+              autogrow,
+              v-model="taskForm.tests[index].inputData",
+              error-message="Пожалуйста, заполните поле!",
+              :error="!!!taskForm.tests[index].inputData"
+            )
+            .example-small-title Выходные данные
+            q-input.example-input(
+              outline,
+              autogrow,
+              v-model="taskForm.tests[index].outputData",
+              error-message="Пожалуйста, заполните поле!",
+              :error="!!!taskForm.tests[index].outputData"
+            )
+        .field-error.text-negative(v-if="!!validator.taskForm.tests.$error") {{ errorMsgTests() }}
+        q-btn.example-add-btn(
+          outline,
+          size="1em",
+          color="secondary",
+          icon="add",
+          @click="() => { taskForm.tests.push({ inputData: '', outputData: '' }); }"
+        )
     q-tab-panel(name="preview")
       .preview-container
         .title {{ taskForm.title }}
@@ -366,6 +416,7 @@ q-page
                         q-btn(
                           size="0.75em",
                           flat,
+                          round,
                           color="secondary",
                           icon="content_copy",
                           @click="() => { copyText(taskForm.examples[index].inputData); }"
@@ -409,7 +460,7 @@ q-page
           .remark-title.text-primary Примечание
           .remark-content(v-html="taskForm.remark")
       q-page-sticky(
-        v-if='taskForm.hint.content.length > 0'
+        v-if="taskForm.hint.content.length > 0",
         position="bottom-right",
         :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
       )
@@ -418,8 +469,8 @@ q-page
           fab-mini,
           icon="visibility",
           color="accent",
-          @click="()=>{ openHintDialog = true;}"
-      )
+          @click="() => { openHintDialog = true; }"
+        )
 </template>
 
 
@@ -519,10 +570,21 @@ export default defineComponent({
         ],
 
         hint: {
-          content: `<p>${"фффф вввв гггг ее ".repeat(30) }</p>`,
+          content: `<p>${"фффф вввв гггг ее ".repeat(30)}</p>`,
           alarmType: "attempts",
           alarm: "1",
         },
+
+        tests: [
+          {
+            inputData: `1`,
+            outputData: `1`,
+          },
+          {
+            inputData: `1243142342`,
+            outputData: `1`,
+          },
+        ],
       }),
 
       editor: CustomEditor,
@@ -788,6 +850,12 @@ export default defineComponent({
       }
     },
 
+    errorMsgTests() {
+      if (this.validator.taskForm.tests.required.$invalid) {
+        return `Добавьте хотя бы один тест`;
+      }
+    },
+
     async addTag() {
       this.$refs.TagSelector.hidePopup();
       const Tag = {
@@ -919,6 +987,9 @@ export default defineComponent({
             numeric,
             minValue: minValue(0),
           },
+        },
+        tests: {
+          required,
         },
       },
     };
