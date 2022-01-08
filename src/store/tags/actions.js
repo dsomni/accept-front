@@ -1,14 +1,15 @@
 import { api } from "boot/axios";
 
-export async function getTag({ dispatch }, title) {
+export async function getTag({ dispatch }, spec) {
   let response = null;
   await api
-    .get(`api/tag/${title}`)
+    .get(`api/tag/${spec}`)
     .then((res) => {
 
       response = {
         status: res.status,
         statusText: res.statusText,
+        data: res.data
       };
     })
     .catch((error) => {
