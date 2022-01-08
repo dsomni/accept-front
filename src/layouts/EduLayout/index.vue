@@ -187,7 +187,7 @@ export default defineComponent({
           },
         });
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Вы успешно вышли из системы",
         });

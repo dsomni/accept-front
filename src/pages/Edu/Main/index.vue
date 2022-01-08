@@ -6,7 +6,7 @@ q-page
     q-table.simple-table(
       bordered,
       wrap-cells,
-      :rows="rows",
+      :rows="tasks",
       :columns="columns",
       row-key="name",
       :visible-columns="visibleColumns",
@@ -88,7 +88,7 @@ q-page
               debounce="300",
               v-model="filterObj.titleSort",
               placeholder="Поиск",
-              style="font-size: 1em;"
+              style="font-size: 1em"
             )
               template(v-slot:append)
                 q-icon(name="search")
@@ -112,7 +112,7 @@ q-page
               .text-primary.text-weight-medium.q-mr-lg(
                 style="font-size: 1.3em"
               )
-                a.title-ref(:href="'/#/edu/task/' + props.row.key") {{ props.row.title }}
+                a.title-ref(:href="'/#/edu/task/' + props.row.spec") {{ props.row.title }}
               q-space
 
               .text-grey-7(
@@ -265,10 +265,12 @@ export default defineComponent({
       visibleColumns.value = [];
     }
     let tags = ref([]);
+    let tasks = ref([]);
 
     return {
       q,
       tags,
+      tasks,
       store,
       filterObj,
       shouldShrinkTable,
@@ -290,6 +292,21 @@ export default defineComponent({
         this.tags = response.data.sort((a, b) =>
           a.title > b.title ? 1 : b.title > a.title ? -1 : 0
         );
+      }
+    },
+
+    async loadTasks() {
+      let response = await this.store.dispatch("tasks/getAllTasksToDisplay");
+      if (response.status == 200) {
+        this.tasks = response.data;
+        this.tasks.forEach((task, index) => {
+          task.index = index + 1;
+          task.verdict = task.verdict || "-";
+           task.tags = task.tags.map((tagSpec) => {
+            let tag = this.tags.find((tag) => tag.spec == tagSpec);
+            return tag?.title;
+          });
+        });
       }
     },
 
@@ -331,6 +348,7 @@ export default defineComponent({
   async mounted() {
     document.title = "Accept | Edu";
     await this.loadTags();
+    await this.loadTasks();
   },
 });
 </script>

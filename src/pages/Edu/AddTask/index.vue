@@ -374,6 +374,18 @@ q-page
           icon="add",
           @click="() => { taskForm.tests.push({ inputData: '', outputData: '' }); }"
         )
+      q-page-sticky(
+        position="bottom-right",
+        :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+      )
+        q-btn.create-button(
+          no-caps,
+          @click="onSubmit()",
+          :color="isNextDisable() ? 'grey-6' : 'accent'",
+          :disable="isNextDisable()",
+          :loading="isLoading",
+          label="Создать"
+        )
     q-tab-panel(name="preview")
       .preview-container
         .title {{ taskForm.title }}
@@ -446,6 +458,7 @@ q-page
                         q-btn(
                           size="0.75em",
                           flat,
+                          round,
                           color="secondary",
                           icon="content_copy",
                           @click="() => { copyText(taskForm.examples[index].outputData); }"
@@ -478,6 +491,8 @@ q-page
 import { defineComponent, ref } from "vue";
 import { useQuasar, copyToClipboard } from "quasar";
 import { useStore } from "vuex";
+import { useRouter, useRoute } from "vue-router";
+
 import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
@@ -511,6 +526,8 @@ export default defineComponent({
     const validator = useVuelidate();
     const store = useStore();
     const q = useQuasar();
+    const router = useRouter();
+    const route = useRoute();
 
     let tags = ref([]);
     let tagOptions = ref([]);
@@ -521,6 +538,8 @@ export default defineComponent({
       q,
       store,
       validator,
+      router,
+      route,
 
       tab: ref("editor"),
       // tab: ref("preview"),
@@ -531,6 +550,8 @@ export default defineComponent({
       openAddTagDialog: ref(false),
       openEditTagDialog: ref(false),
       openHintDialog: ref(false),
+
+      isLoading: ref(false),
     };
   },
   data() {
@@ -546,9 +567,8 @@ export default defineComponent({
       taskForm: ref({
         title: "Название Задачи",
         tags: [
-          { title: "Заглушка1" },
-          { title: "Заглушка2" },
-          { title: "Заглушка3" },
+          { title: "1234567", spec: "3c078052-1291-4d62-a4c7-be531cb3e839" },
+          { title: "1sdffdsd", spec: "68f56c4d-14c8-4f2a-8286-1272824d3c53" },
         ],
         grade: "11",
         description: `<p>${"safdsf dsfssafdsf dsfs ".repeat(30)}</p>`,
@@ -575,6 +595,8 @@ export default defineComponent({
           alarm: "1",
         },
 
+        checkType: "tests",
+
         tests: [
           {
             inputData: `1`,
@@ -598,6 +620,66 @@ export default defineComponent({
     };
   },
   methods: {
+    isNextDisable() {
+      if (
+        !this.validator.taskForm.$invalid &&
+        this.checkTestsValidness() &&
+        this.checkExamplesValidness()
+      ) {
+        return false;
+      }
+      return true;
+    },
+
+    checkTestsValidness() {
+      for (let i = 0; i < this.taskForm.tests.length; i++) {
+        const test = this.taskForm.tests[i];
+        if (!test.inputData || !test.outputData) return false;
+      }
+      return true;
+    },
+    checkExamplesValidness() {
+      for (let i = 0; i < this.taskForm.examples.length; i++) {
+        const example = this.taskForm.examples[i];
+        if (!example.inputData || !example.outputData) return false;
+      }
+      return true;
+    },
+    async onSubmit() {
+      const Task = {
+        title: this.taskForm.title.toString().trim(),
+        description: this.taskForm.description.toString(),
+        author: this.taskForm.author.toString(),
+        grade: this.taskForm.grade,
+
+        tags: this.taskForm.tags.map((tag) => tag.spec.toString()),
+        hint: this.taskForm.hint.content ? this.taskForm.hint : null,
+
+        checkType: this.taskForm.checkType,
+        tests: this.taskForm.tests,
+        checker: null,
+      };
+      const response = await this.store.dispatch("tasks/addTask", Task);
+      if (response.status == 200) {
+        const toPath = "/edu";
+        this.router.push({ path: toPath });
+        this.q.notify({
+          color: "green-7",
+          textColor: "white",
+          message: "Задача успешно добавлена",
+        });
+      } else {
+        this.q.notify({
+          type: "negative",
+          message:
+            response?.detail?.descriptionRU ||
+            response?.detail?.description ||
+            `${response.status}: ${response.statusText}`,
+          timeout: 8000,
+        });
+      }
+    },
+
     async loadTags() {
       let response = await this.store.dispatch("tags/getAllTags");
       if (response.status == 200) {
@@ -664,7 +746,7 @@ export default defineComponent({
       copyToClipboard(text)
         .then(() => {
           this.q.notify({
-            color: "green-9",
+            color: "green-7",
             textColor: "white",
             message: "Скопировано в буфер обмена",
           });
@@ -678,6 +760,7 @@ export default defineComponent({
     },
 
     tagFilter(val, update) {
+      console.log(this.taskForm.tags);
       update(() => {
         if (val === "") {
           this.tagOptions = this.tags;
@@ -864,7 +947,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/addTag", Tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Тег успешно добавлен",
         });
@@ -888,7 +971,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/updateTag", tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Тег успешно обновлён",
         });
@@ -909,7 +992,7 @@ export default defineComponent({
       const response = await this.store.dispatch("tags/deleteTag", tag);
       if (response.status == 200) {
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Тег успешно удалён",
         });

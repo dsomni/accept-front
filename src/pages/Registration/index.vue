@@ -304,7 +304,7 @@ export default defineComponent({
         const toPath = this.route.query.nextUrl || "/";
         this.router.push({ path: toPath });
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Вы успешно зарегистрированы",
         });

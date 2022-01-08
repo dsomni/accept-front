@@ -116,7 +116,7 @@ export default defineComponent({
       if (response.status == 200) {
         this.router.push({ path: this.toPath });
         this.q.notify({
-          color: "green-9",
+          color: "green-7",
           textColor: "white",
           message: "Вход выполнен",
         });
