@@ -56,23 +56,6 @@ q-page
           @click="async () => { await updateTag(); openEditTagDialog = false; }"
         )
 
-  q-dialog(v-model="openHintDialog")
-    q-card.q-pa-sm.hint-dialog.dialog
-      q-card-section
-        .dialog-title.text-primary Подсказка
-
-      q-card-section.q-pt-none.scroll.hint-content-section(
-        v-html="taskForm.hint.content",
-        style="max-height: 60vh"
-      )
-      q-card-actions(align="right")
-        q-btn(
-          flat,
-          label="Скрыть",
-          color="primary",
-          @click="async () => { openHintDialog = false; }"
-        )
-
   q-tabs.q-ma-sm.bg-white(
     v-model="tab",
     active-color="primary",
@@ -387,115 +370,24 @@ q-page
           label="Создать"
         )
     q-tab-panel(name="preview")
-      .preview-container
-        .title {{ taskForm.title }}
-        .tags
-          template(v-for="(tag, index) in taskForm.tags", :key="index")
-            q-chip(
-              outline,
-              color="black",
-              text-color="white",
-              :label="tag.title",
-              :clickable="false"
-            )
-        .credentials
-          .author {{ 'Автор: ' + taskForm.author }}
-          .grade {{ 'Класс: ' + taskForm.grade }}
-        .description(v-html="taskForm.description")
-        .inputFormat
-          .inputFormat-title.text-primary Входные данные
-          .inputFormat-content(v-html="taskForm.inputFormat")
-        .outputFormat
-          .outputFormat-title.text-primary Выходные данные
-          .outputFormat-content(v-html="taskForm.outputFormat")
-        .examples(v-if="taskForm.examples.length > 0")
-          .example-title.text-primary Примеры
-          template(v-for="(example, index) in taskForm.examples", :key="index")
-            .example-pair
-              q-markup-table(
-                separator="horizontal",
-                flat,
-                bordered,
-                style="margin-bottom: 0.5em; border-color: #5e5e5e"
-              )
-                thead
-                  tr
-                    th(
-                      style="text-align: left; font-size: 0.8em; border-color: #5e5e5e"
-                    )
-                      .row.justify-between.items-center
-                        div Входные данные
-                        q-btn(
-                          size="0.75em",
-                          flat,
-                          round,
-                          color="secondary",
-                          icon="content_copy",
-                          @click="() => { copyText(taskForm.examples[index].inputData); }"
-                        )
+      TaskPreview(:taskForm="taskForm")
+      Hint(v-if="taskForm.hint.content.length > 0" :content="taskForm.hint.content")
 
-                tbody(
-                  style="background: white !important; border-color: #5e5e5e"
-                )
-                  tr.example-row.bg-blue-grey-1
-                    td(
-                      style="white-space: pre-wrap; word-wrap: break-word; font-size: 0.65em"
-                    ) {{ taskForm.examples[index].inputData }}
-
-              q-markup-table(
-                separator="horizontal",
-                flat,
-                bordered,
-                style="border-color: #5e5e5e"
-              )
-                thead
-                  tr
-                    th(
-                      style="text-align: left; font-size: 0.8em; border-color: #5e5e5e"
-                    )
-                      .row.justify-between.items-center
-                        div Выходные данные
-                        q-btn(
-                          size="0.75em",
-                          flat,
-                          round,
-                          color="secondary",
-                          icon="content_copy",
-                          @click="() => { copyText(taskForm.examples[index].outputData); }"
-                        )
-                tbody
-                  tr.example-row.bg-blue-grey-1
-                    td(
-                      style="white-space: pre-wrap; word-wrap: break-word; border-color: #5e5e5e; font-size: 0.65em"
-                    ) {{ taskForm.examples[index].outputData }}
-
-        .remark(v-if="!!taskForm.remark")
-          .remark-title.text-primary Примечание
-          .remark-content(v-html="taskForm.remark")
-      q-page-sticky(
-        v-if="taskForm.hint.content.length > 0",
-        position="bottom-right",
-        :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
-      )
-        q-btn(
-          :fab="q.screen.gt.xs",
-          fab-mini,
-          icon="visibility",
-          color="accent",
-          @click="() => { openHintDialog = true; }"
-        )
 </template>
 
 
 <script>
 import { defineComponent, ref } from "vue";
-import { useQuasar, copyToClipboard } from "quasar";
+import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 
 import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
+
+import TaskPreview from 'src/components/Task/Preview/index.vue';
+import Hint from "src/components/Hint/index.vue";
 
 import useVuelidate from "@vuelidate/core";
 import {
@@ -515,7 +407,7 @@ const limitWidth = 900;
 
 export default defineComponent({
   name: "EduAddTask",
-  components: { ckeditor: CKEditor.component },
+  components: { ckeditor: CKEditor.component, TaskPreview, Hint },
   async mounted() {
     document.title = "Добавить задачу";
     await this.loadTags();
@@ -657,6 +549,12 @@ export default defineComponent({
 
         checkType: this.taskForm.checkType,
         tests: this.taskForm.tests,
+        examples: this.taskForm.examples,
+
+        remark: this.taskForm.remark,
+        inputFormat: this.taskForm.inputFormat,
+        outputFormat: this.taskForm.outputFormat,
+
         checker: null,
       };
       const response = await this.store.dispatch("tasks/addTask", Task);
@@ -741,23 +639,6 @@ export default defineComponent({
     //   }
     //   return reduced;
     // },
-
-    copyText(text) {
-      copyToClipboard(text)
-        .then(() => {
-          this.q.notify({
-            color: "green-7",
-            textColor: "white",
-            message: "Скопировано в буфер обмена",
-          });
-        })
-        .catch(() => {
-          this.q.notify({
-            color: "negative",
-            message: "Ошибка при копировании в буфер обмена",
-          });
-        });
-    },
 
     tagFilter(val, update) {
       console.log(this.taskForm.tags);
