@@ -7,6 +7,7 @@ import TestBack from 'src/pages/TestBack/index.vue';
 
 import EduMain from 'src/pages/Edu/Main/index.vue';
 import EduAddTask from 'src/pages/Edu/AddTask/index.vue';
+import EduEditTask from 'src/pages/Edu/EditTask/index.vue';
 import EduTask from 'src/pages/Edu/Task/index.vue';
 
 const routes = [
@@ -35,6 +36,7 @@ const routes = [
     children: [
       { path: '', component: EduMain },
       { path: 'tasks/add', component: EduAddTask },
+      { path: 'tasks/edit/:spec', component: EduEditTask, props: true },
       {path: 'task/:spec', component: EduTask, props: true}
     ]
   },

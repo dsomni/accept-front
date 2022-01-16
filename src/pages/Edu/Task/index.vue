@@ -15,12 +15,12 @@ q-page
   )
     .column.q-gutter-md
       q-fab(
-        :direction="q.screen.height > limitHeightFab ? 'up' : 'left' ",
+        :direction="q.screen.height > limitHeightFab ? 'up' : 'left'",
         icon="more_vert",
-        color="accent",
+        color="accent"
       )
-        q-fab-action(@click="() => {}", color="primary", icon="person_add")
-        q-fab-action(@click="() => {}", color="primary", icon="mail")
+        template(v-for="(action, index) in actions", :key="index")
+          q-fab-action(:to="action.to", color="secondary", :icon="action.icon")
       q-btn(
         v-if="showPreview && task.hint.content.length > 0",
         fab,
@@ -47,19 +47,32 @@ export default defineComponent({
     spec: String,
   },
   components: { TaskPreview, Hint },
-  setup() {},
-  data() {
+  created() {
+    this.actions = [
+      {
+        to: `/edu/tasks/edit/${this.spec}`,
+        icon: "edit",
+      },
+    ];
+  },
+  setup() {
     const store = useStore();
     const q = useQuasar();
+    let actions = ref([]);
+
     return {
       q,
       store,
-
+      actions,
+    };
+  },
+  data() {
+    return {
       task: ref({}),
       tags: ref([]),
       showPreview: ref(false),
       openHintDialog: ref(false),
-      limitHeightFab
+      limitHeightFab,
     };
   },
   methods: {
