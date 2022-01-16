@@ -1,7 +1,7 @@
 <style lang="sass" src="./style.sass"></style>
 
 <template lang="pug">
-q-dialog(v-model="openHintDialog")
+q-dialog(v-model="openHintDialogLocal")
   q-card.q-pa-sm.hint-dialog.dialog
     q-card-section
       .dialog-title.text-primary Подсказка
@@ -15,20 +15,9 @@ q-dialog(v-model="openHintDialog")
         flat,
         label="Скрыть",
         color="primary",
-        @click="async () => { openHintDialog = false; }"
+        @click="async () => { openHintDialogLocal = false; }"
       )
 
-q-page-sticky(
-  position="bottom-right",
-  :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
-)
-  q-btn(
-    :fab="q.screen.gt.xs",
-    fab-mini,
-    icon="visibility",
-    color="accent",
-    @click="() => { openHintDialog = true; }"
-  )
 </template>
 
 
@@ -38,13 +27,29 @@ import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "Hint",
-  props: { content: String },
+  props: { content: String , openHintDialog: Boolean},
+  created(){
+    this.$watch(
+      () => this.openHintDialogLocal,
+      (newVal, oldVal) => {
+        this.$emit('openDialogChange', newVal);
+      }
+    )
+
+    this.$watch(
+      () => this.openHintDialog,
+      (newVal, oldVal) => {
+        this.openHintDialogLocal = this.openHintDialog;
+      }
+    )
+  },
   data() {
     const q = useQuasar();
     return {
       q,
-      openHintDialog: ref(false),
+      openHintDialogLocal: ref(this.openHintDialog),
     };
   },
+
 });
 </script>

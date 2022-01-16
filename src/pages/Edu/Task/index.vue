@@ -3,7 +3,31 @@
 <template lang="pug">
 q-page
   TaskPreview.preview(v-if="showPreview", :taskForm="task")
-  Hint(v-if="showPreview && task.hint.content.length > 0" :content="task.hint.content")
+  Hint(
+    v-if="showPreview && task.hint.content.length > 0",
+    :content="task.hint.content",
+    :openHintDialog="openHintDialog",
+    v-on:openDialogChange="openDialogChange"
+  )
+  q-page-sticky(
+    position="bottom-right",
+    :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+  )
+    .column.q-gutter-md
+      q-fab(
+        :direction="q.screen.height > limitHeightFab ? 'up' : 'left' ",
+        icon="more_vert",
+        color="accent",
+      )
+        q-fab-action(@click="() => {}", color="primary", icon="person_add")
+        q-fab-action(@click="() => {}", color="primary", icon="mail")
+      q-btn(
+        v-if="showPreview && task.hint.content.length > 0",
+        fab,
+        icon="visibility",
+        color="accent",
+        @click="() => { openHintDialog = true; }"
+      )
 </template>
 
 
@@ -15,7 +39,7 @@ import { useQuasar } from "quasar";
 import TaskPreview from "src/components/Task/Preview/index.vue";
 import Hint from "src/components/Hint/index.vue";
 
-const limitTableWidth = 600;
+const limitHeightFab = 400;
 
 export default defineComponent({
   name: "EduTask",
@@ -35,6 +59,7 @@ export default defineComponent({
       tags: ref([]),
       showPreview: ref(false),
       openHintDialog: ref(false),
+      limitHeightFab
     };
   },
   methods: {
@@ -59,6 +84,10 @@ export default defineComponent({
         );
         this.showPreview = true;
       }
+    },
+
+    async openDialogChange(value) {
+      this.openHintDialog = value;
     },
   },
   async mounted() {

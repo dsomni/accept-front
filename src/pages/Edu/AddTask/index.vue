@@ -371,8 +371,23 @@ q-page
         )
     q-tab-panel(name="preview")
       TaskPreview(:taskForm="taskForm")
-      Hint(v-if="taskForm.hint.content.length > 0" :content="taskForm.hint.content")
-
+      Hint(
+        v-if="taskForm.hint.content.length > 0",
+        :content="taskForm.hint.content",
+        :openHintDialog="openHintDialog",
+        v-on:openDialogChange="openDialogChange"
+      )
+      q-page-sticky(
+        position="bottom-right",
+        :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+      )
+        q-btn(
+          v-if="taskForm.hint.content.length > 0",
+          fab,
+          icon="visibility",
+          color="accent",
+          @click="() => { openHintDialog = true; }"
+  )
 </template>
 
 
@@ -386,7 +401,7 @@ import Fuse from "fuse.js";
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import CustomEditor from "@dsomni/ckeditor5-custom-build-full/build/ckeditor";
 
-import TaskPreview from 'src/components/Task/Preview/index.vue';
+import TaskPreview from "src/components/Task/Preview/index.vue";
 import Hint from "src/components/Hint/index.vue";
 
 import useVuelidate from "@vuelidate/core";
@@ -433,8 +448,8 @@ export default defineComponent({
       router,
       route,
 
-      tab: ref("editor"),
-      // tab: ref("preview"),
+      // tab: ref("editor"),
+      tab: ref("preview"),
 
       tags,
       tagOptions,
@@ -512,6 +527,9 @@ export default defineComponent({
     };
   },
   methods: {
+    openDialogChange(value) {
+      this.openHintDialog = value;
+    },
     isNextDisable() {
       if (
         !this.validator.taskForm.$invalid &&
