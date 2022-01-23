@@ -82,8 +82,6 @@ export default defineComponent({
       taskForm: ref({
         title: "Название Задачи",
         tags: [
-          { title: "1234567", spec: "3c078052-1291-4d62-a4c7-be531cb3e839" },
-          { title: "1sdffdsd", spec: "68f56c4d-14c8-4f2a-8286-1272824d3c53" },
         ],
         grade: "11",
         description: `<p>${"safdsf dsfssafdsf dsfs ".repeat(30)}</p>`,
