@@ -2,13 +2,31 @@
 
 <template lang="pug">
 q-page
-  TaskPreview.preview(v-if="showPreview", :taskForm="task")
-  Hint(
-    v-if="showPreview && task.hint.content.length > 0",
-    :content="task.hint.content",
-    :openHintDialog="openHintDialog",
-    v-on:openDialogChange="openDialogChange"
+  q-tabs.text-grey(
+    v-model="tab",
+    active-color="primary",
+    indicator-color="primary",
+    align="justify",
+    narrow-indicator
   )
+    q-tab(name="task", label="Задача")
+    q-tab(name="code", label="Отправка")
+    q-tab(name="results", label="Посылки")
+  q-separator
+  q-tab-panels(v-model="tab")
+    q-tab-panel(name="task")
+      TaskPreview.preview(v-if="showPreview", :taskForm="task")
+      Hint(
+        v-if="showPreview && task.hint.content.length > 0",
+        :content="task.hint.content",
+        :openHintDialog="openHintDialog",
+        v-on:openDialogChange="openDialogChange"
+      )
+    q-tab-panel(name="results")
+      Results
+    q-tab-panel(name="code")
+      CodeForm
+
   q-page-sticky(
     position="bottom-right",
     :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
@@ -38,6 +56,8 @@ import { useQuasar } from "quasar";
 
 import TaskPreview from "src/components/Task/Preview/index.vue";
 import Hint from "src/components/Hint/index.vue";
+import Results from "src/components/Task/Results/index.vue";
+import CodeForm from "src/components/Task/CodeForm/index.vue";
 
 const limitHeightFab = 400;
 
@@ -46,7 +66,7 @@ export default defineComponent({
   props: {
     spec: String,
   },
-  components: { TaskPreview, Hint },
+  components: { TaskPreview, Hint, Results, CodeForm },
   created() {
     this.actions = [
       {
@@ -61,6 +81,7 @@ export default defineComponent({
     let actions = ref([]);
 
     return {
+      tab: ref("code"),
       q,
       store,
       actions,
