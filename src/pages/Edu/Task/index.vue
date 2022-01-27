@@ -22,10 +22,10 @@ q-page
         :openHintDialog="openHintDialog",
         v-on:openDialogChange="openDialogChange"
       )
+    q-tab-panel(name="code")
+      CodeForm(:task="spec")
     q-tab-panel(name="results")
       Results
-    q-tab-panel(name="code")
-      CodeForm
 
   q-page-sticky(
     position="bottom-right",
@@ -75,13 +75,13 @@ export default defineComponent({
       },
     ];
   },
-  setup() {
+  setup(props) {
     const store = useStore();
     const q = useQuasar();
     let actions = ref([]);
 
     return {
-      tab: ref("code"),
+      tab: ref("task"),
       q,
       store,
       actions,

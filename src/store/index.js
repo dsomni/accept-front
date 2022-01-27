@@ -3,6 +3,7 @@ import { createStore } from 'vuex'
 import users from './users'
 import tags from './tags'
 import tasks from './tasks'
+import attempts from './attempts'
 
 /*
  * If not building with SSR mode, you can
@@ -19,6 +20,7 @@ export default store(function (/* { ssrContext } */) {
       users,
       tags,
       tasks,
+      attempts,
     },
 
     // enable strict mode (adds overhead!)

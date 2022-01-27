@@ -29,15 +29,21 @@ q-form(
 <script>
 import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { useStore } from 'vuex';
 
 export default defineComponent({
-  setup(){
+  props:{
+    task: String
+  },
+  setup(props){
     const q = useQuasar();
     const languages = ['python', 'pypy', 'c++', 'java', 'pascal']
     const code = ref('');
     const lang = ref('python');
     const file = ref(null);
-    const accept = ref(false)
+    const accept = ref(false);
+    const store = useStore();
+
     return{
       q,
       code,
@@ -45,20 +51,29 @@ export default defineComponent({
       lang,
       languages,
       accept,
-      onSubmit(){
+      store,
+      async onSubmit(){
+        const attempt = {
+          author: store.getters['users/login'],
+          language: lang.value,
+          programText: code.value,
+          task: props.task
+        }
+        console.log(attempt);
+        const response = await store.dispatch('attempts/send', attempt)
         if(accept){
           q.notify({
             color: 'green-4',
             textColor: 'white',
             icon: 'cloud_done',
-            message: 'Submitted'
+            message: 'Отправлено'
           })
         }else{
           q.notify({
             color: 'red-5',
             textColor: 'white',
             icon: 'warning',
-            message: 'You need to accept the license and terms first'
+            message: 'Ошибка'
           })
         }
       }
