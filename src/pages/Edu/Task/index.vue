@@ -25,7 +25,7 @@ q-page
     q-tab-panel(name="code")
       CodeForm(:task="spec")
     q-tab-panel(name="results")
-      Results
+      Results(:task="spec")
 
   q-page-sticky(
     position="bottom-right",

@@ -59,9 +59,8 @@ export default defineComponent({
           programText: code.value,
           task: props.task
         }
-        console.log(attempt);
         const response = await store.dispatch('attempts/send', attempt)
-        if(accept){
+        if(response.status == 200){
           q.notify({
             color: 'green-4',
             textColor: 'white',

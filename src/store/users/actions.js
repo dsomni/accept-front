@@ -119,7 +119,6 @@ export async function refresh({ commit }) {
   return response;
 }
 
-
 export async function getUser({ dispatch }, login) {
   let response = null;
   await api
@@ -141,4 +140,3 @@ export async function getUser({ dispatch }, login) {
     });
   return response;
 }
-
