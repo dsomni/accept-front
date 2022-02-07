@@ -63,6 +63,7 @@ export default defineComponent({
       columns,
       initialPagination: {
         sortBy: 'date',
+        descending: true,
         rowsPerPage: 20
       },
     }
