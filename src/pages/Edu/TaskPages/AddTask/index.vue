@@ -69,7 +69,6 @@ export default defineComponent({
       store,
       router,
       route,
-
     };
   },
   data() {
@@ -81,8 +80,7 @@ export default defineComponent({
 
       taskForm: ref({
         title: "Название Задачи",
-        tags: [
-        ],
+        tags: [],
         grade: "11",
         description: `<p>${"safdsf dsfssafdsf dsfs ".repeat(30)}</p>`,
         author: "",
@@ -109,6 +107,7 @@ export default defineComponent({
         },
 
         checkType: "tests",
+        type: "code",
 
         tests: [
           {
@@ -139,6 +138,7 @@ export default defineComponent({
         hint: this.taskForm.hint.content ? this.taskForm.hint : null,
 
         checkType: this.taskForm.checkType,
+        type: this.taskForm.type,
         tests: this.taskForm.tests,
         examples: this.taskForm.examples,
 

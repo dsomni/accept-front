@@ -126,6 +126,7 @@ export default defineComponent({
         hint: this.task.hint.content ? this.task.hint : null,
 
         checkType: this.task.checkType,
+        type: this.task.type,
         tests: this.task.tests,
         examples: this.task.examples,
 

@@ -2,7 +2,7 @@
 
 <template lang="pug">
 .table-container
-  q-table.simple-table(
+  q-table.results-table(
     title="Попытки",
     :rows="attempts",
     :columns="columns",

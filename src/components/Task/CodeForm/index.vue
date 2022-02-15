@@ -37,7 +37,7 @@ export default defineComponent({
   },
   setup(props){
     const q = useQuasar();
-    const languages = ['python', 'pypy', 'cpp ', 'java', 'pascal']
+    const languages = ['python', 'pypy', 'cpp', 'java', 'pascal']
     const code = ref('');
     const lang = ref('python');
     const file = ref(null);

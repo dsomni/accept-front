@@ -4,6 +4,7 @@ import users from './users'
 import tags from './tags'
 import tasks from './tasks'
 import attempts from './attempts'
+import assignmentSchemas from './assignmentSchemas'
 
 /*
  * If not building with SSR mode, you can
@@ -21,6 +22,7 @@ export default store(function (/* { ssrContext } */) {
       tags,
       tasks,
       attempts,
+      assignmentSchemas
     },
 
     // enable strict mode (adds overhead!)

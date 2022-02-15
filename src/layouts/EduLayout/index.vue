@@ -20,12 +20,12 @@ q-layout.main-page-layout(view="hHh lpR lFf")
             size="xl",
             square,
             style="cursor: pointer",
-            @click="goToMainPage"
+            @click="goToGlobalMainPage"
           )
             img(src="~assets/logo.svg")
           span.q-ml-sm.q-py-sm.q-pr-md(
             style="cursor: pointer",
-            @click="goToMainPage"
+            @click="goToEduMainPage"
           ) Образование
 
         HeaderMenu(:menuList="menuList", v-if="!shouldShrinkHeader")
@@ -83,7 +83,7 @@ const menuList = [
   {
     type: "reference",
     label: "Задания",
-    reference: "/#/edu/assignments",
+    reference: "/#/edu/assignment/list",
     separator: true,
   },
   {
@@ -141,8 +141,11 @@ export default defineComponent({
     },
   },
   methods: {
-    goToMainPage() {
+    goToGlobalMainPage() {
       this.router.push({ path: "/" });
+    },
+    goToEduMainPage() {
+      this.router.push({ path: "/edu" });
     },
     onResizeHeader(size) {
       if (size.width < this.limitWidthHeaderWithLogin) {

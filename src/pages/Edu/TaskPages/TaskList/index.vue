@@ -112,7 +112,7 @@ q-page
               .text-primary.text-weight-medium.q-mr-lg(
                 style="font-size: 1.3em"
               )
-                a.title-ref(:href="'/#/edu/task/' + props.row.spec") {{ props.row.title }}
+                a.title-ref(:href="joinPath([paths.main, paths.edu.self , paths.edu.task.page, props.row.spec])") {{ props.row.title }}
               q-space
 
               .text-grey-7(
@@ -135,7 +135,7 @@ q-page-sticky(
     fab-mini,
     icon="add",
     color="primary",
-    to="/edu/tasks/add"
+    :to="joinPath([ '/', paths.edu.self, paths.edu.task.add ])"
   )
 </template>
 
@@ -145,6 +145,8 @@ import { defineComponent, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import Fuse from "fuse.js";
+import { paths } from '../../../../router/paths';
+import { joinPath } from 'src/utils/joinPath';
 
 const columns = [
   {
@@ -197,53 +199,7 @@ const columns = [
   },
 ];
 
-const N = 100;
-
-let rows = [];
-
-for (let i = 1; i <= N; i++) {
-  if (i % 3 == 0) {
-    rows.push({
-      index: i,
-      key: "a",
-      title: "Simple Title",
-      tags: ["строки", "строки"],
-      grade: 11,
-      verdict: "OK",
-      author: "Береснев Д.В.",
-    });
-  } else if (i % 3 == 1) {
-    rows.push({
-      index: i,
-      key: "b-b",
-      title: "Наверное, очень длинное название",
-      tags: ["массивы"],
-      grade: 7,
-      verdict: "OK",
-      author: "Юн Д.В.",
-    });
-  } else {
-    rows.push({
-      index: i,
-      key: "cccc",
-      title: "Россия вперёд",
-      tags: [
-        "алгоритмы",
-        "строки",
-        "массивы",
-        "алгоритмы",
-        "массивы",
-        "алгоритмы",
-      ],
-      grade: 10,
-      verdict: "WA",
-      author: "Лобачевский Д.В.",
-    });
-  }
-}
-
-const verdicts = ["WA", "OK"];
-
+const verdicts = ["WA", "OK", "CE", "RE", "TL"];
 const limitTableWidth = 600;
 
 export default defineComponent({
@@ -264,6 +220,7 @@ export default defineComponent({
     if (q.screen.lt.sm) {
       visibleColumns.value = [];
     }
+    let rows = []
     let tags = ref([]);
     let tasks = ref([]);
 
@@ -280,9 +237,10 @@ export default defineComponent({
   data() {
     return {
       columns,
-      rows,
       verdicts,
       limitTableWidth,
+      paths,
+      joinPath,
     };
   },
   methods: {

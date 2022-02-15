@@ -59,6 +59,9 @@ import Hint from "src/components/Hint/index.vue";
 import Results from "src/components/Task/Results/index.vue";
 import CodeForm from "src/components/Task/CodeForm/index.vue";
 
+import { paths } from "src/router/paths";
+import { joinPath } from "src/utils/joinPath"
+
 const limitHeightFab = 400;
 
 export default defineComponent({
@@ -70,7 +73,7 @@ export default defineComponent({
   created() {
     this.actions = [
       {
-        to: `/edu/tasks/edit/${this.spec}`,
+        to: joinPath(['/',paths.edu.self , paths.edu.task.edit, this.spec]),
         icon: "edit",
       },
     ];
