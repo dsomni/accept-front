@@ -15,14 +15,14 @@ q-form(
     :options="languages"
     label="Язык"
   )
-  q-input(
+  q-input.codeInput(
     type="textarea"
     v-model="code"
     lazy-rules
     label="Код"
     :rules="[ val => val && val.trim().length > 0 || 'Введите код перед отправкой' ]"
     rows=25
-    class="codeInput"
+    input-class="codeInner"
   )
 </template>
 

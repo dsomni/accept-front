@@ -22,30 +22,30 @@ q-page
         :openHintDialog="openHintDialog",
         v-on:openDialogChange="openDialogChange"
       )
+      q-page-sticky(
+        position="bottom-right",
+        :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
+      )
+        .column.q-gutter-md
+          q-fab(
+            :direction="q.screen.height > limitHeightFab ? 'up' : 'left'",
+            icon="more_vert",
+            color="accent"
+          )
+            template(v-for="(action, index) in actions", :key="index")
+              q-fab-action(:to="action.to", color="secondary", :icon="action.icon")
+          q-btn(
+            v-if="showPreview && task.hint.content.length > 0",
+            fab,
+            icon="visibility",
+            color="accent",
+            @click="() => { openHintDialog = true; }"
+          )
     q-tab-panel(name="code")
       CodeForm(:task="spec")
     q-tab-panel(name="results")
       Results(:task="spec")
 
-  q-page-sticky(
-    position="bottom-right",
-    :offset="q.screen.gt.xs ? [36, 36] : [18, 18]"
-  )
-    .column.q-gutter-md
-      q-fab(
-        :direction="q.screen.height > limitHeightFab ? 'up' : 'left'",
-        icon="more_vert",
-        color="accent"
-      )
-        template(v-for="(action, index) in actions", :key="index")
-          q-fab-action(:to="action.to", color="secondary", :icon="action.icon")
-      q-btn(
-        v-if="showPreview && task.hint.content.length > 0",
-        fab,
-        icon="visibility",
-        color="accent",
-        @click="() => { openHintDialog = true; }"
-      )
 </template>
 
 
